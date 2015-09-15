@@ -3,66 +3,97 @@ package apron.acl;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.floodlightcontroller.core.IOFSwitch;
-
-import org.openflow.protocol.OFFlowMod;
-import org.openflow.protocol.OFMessage;
-import org.openflow.protocol.OFStatisticsRequest;
-import org.openflow.protocol.OFType;
-import org.openflow.protocol.action.OFAction;
-import org.openflow.protocol.statistics.OFStatisticsType;
-
 public class ACLRequest{
-    public String app = new String("");
-    public OFType ofType = null;
-    public OFMessage ofMsg = null;
-    public OFFlowMod ofFlowMod = null;
-    public String field = new String("");
+	
+	//Field
+	private enum OFField{TCP_SRC,TCP_DST,VLAN_ID,IP_SRC,IP_DST};
+	
+	// OFAction
+	public enum OFActionType{FORWARD,MODIFY,SET_TP_SRC,SET_TP_DST,SET_NW_SRC,SET_NW_DST};
+	public class OFAction
+	{
+		private OFActionType type;
+		public List<OFField> fields;
+		public OFActionType getType()
+		{
+			return type;
+		}
+	}
+	
+	// LEVEL
+	private enum OFNotificationLevel{DEFAULT,EVENT_INTERCEPTION, MODIFY_EVENT_ORDER};
+	private enum OFStatisticsLevel{FLOW_LEVEL,PORT_LEVEL,SWITCH_LEVEL};
+	
+	// OF
+	public enum OFType{FLOW_MOD, PACKET_OUT};
+	public class OFMatch{
+		int ipSrc,ipSrcMask,ipSrcMaskLen;
+		int ipDst,ipDstMask,ipDstMaskLen;
+		int tcpSrcPort,tcpDstPort;
+		int vlanId;
+
+		int getTransportSource(){
+			return tcpSrcPort;
+		}
+		int getTransportDestination(){
+			return tcpDstPort;
+		}
+		int getDataLayerVirtualLan(){
+			return vlanId;
+		}
+		int getNetworkSource(){
+			return ipSrc;
+		}
+		int getNetworkSourceMaskLen(){
+			return ipSrcMaskLen;
+		}
+		int getNetworkDestination(){
+			return ipDst;
+		}
+		int getNetworkDestinationMaskLen(){
+			return ipDstMaskLen;
+		}
+	}
+	
+	// type of the detail message: packet_out, flow_mod
+	OFType type;
+	
+	// details of the flow match: ip, port, mask, vlan.
+	OFMatch match;
+	
+	// priority
+	int priority;
+	
+	// action list if it's flow_mod.
     public List<OFAction> actions = new ArrayList<OFAction>();
+
+	// app name
+    public String app = new String("");
+    
+    
     public String ownership = new String("");
+    
     public Integer rules_per_switch = new Integer(0);
     public Float size_per_switch = new Float(0.0);
-    public String notification = new String("");
-    public OFStatisticsType statistics = null;
+    
+    // notification level
+    public OFNotificationLevel notification;
+    
+    // statistics level
+    public OFStatisticsLevel statistics = null;
+    
     public int network = 0;
     public int filesystem = 0;
     public int processruntime = 0;
-    public long sw = 0;
 
     public void APP(String s){
     	this.app = s;
     }
-    public void MsgTranslate(IOFSwitch sw, OFMessage msg){
-    	this.sw = sw.getId();
-    	this.MsgTranslate(msg);
+    OFType getType(){
+    	return type;
     }
-    public void MsgTranslate(OFMessage msg){
-    	this.ofType = msg.getType();
-    }
-    public void MsgTranslate(IOFSwitch sw, OFFlowMod msg){
-    	this.sw = sw.getId();
-    	this.MsgTranslate(msg);
-    }
-    public void MsgTranslate(OFFlowMod msg){
-    	try {
-			this.ofFlowMod = msg.clone();
-			this.MsgTranslate((OFMessage) msg);
-		} catch (CloneNotSupportedException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-    	//action
-    	for(int i = 0; i < msg.getActions().size(); ++i){
-    		try {
-				this.actions.add(msg.getActions().get(i).clone());
-			} catch (CloneNotSupportedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-    	}
-    }
-    public void MsgTranslate(OFStatisticsRequest msg){
-    	this.statistics = msg.getStatisticType();
+    OFMatch getMatch(){
+    	return match;
     }
     //flow_predicate
     public int getFieldMask(String field){
@@ -102,46 +133,46 @@ public class ACLRequest{
     	return -1;
     }
     public int getTcpSrc(){
-    	if(this.ofFlowMod == null){
+    	if(this.match == null){
     		return -1;
     	}
-    	return ofFlowMod.getMatch().getTransportSource();
+    	return this.getMatch().getTransportSource();
     }
     public int getTcpDst(){
-    	if(this.ofFlowMod == null){
+    	if(this.match == null){
     		return -1;
     	}
-    	return ofFlowMod.getMatch().getTransportDestination();
+    	return this.getMatch().getTransportDestination();
     }
     public int getVlanId(){
-    	if(this.ofFlowMod == null){
+    	if(this.match == null){
     		return -1;
     	}
-    	return ofFlowMod.getMatch().getDataLayerVirtualLan();
+    	return this.getMatch().getDataLayerVirtualLan();
     }
     public int getIpSrc(){
-    	if(this.ofFlowMod == null){
+    	if(this.match == null){
     		return -1;
     	}
-    	return ofFlowMod.getMatch().getNetworkSource();
+    	return this.getMatch().getNetworkSource();
     }
     public int getIpSrcMask(){
-    	if(this.ofFlowMod == null){
+    	if(this.match == null){
     		return -1;
     	}
-    	return ~((1<<ofFlowMod.getMatch().getNetworkSourceMaskLen())-1);
+    	return ~((1<<this.getMatch().getNetworkSourceMaskLen())-1);
     }
     public int getIpDst(){
-    	if(this.ofFlowMod == null){
+    	if(this.match == null){
     		return -1;
     	}
-    	return ofFlowMod.getMatch().getNetworkDestination();
+    	return this.getMatch().getNetworkDestination();
     }
     public int getIpDstMask(){
-    	if(this.ofFlowMod == null){
+    	if(this.match == null){
     		return -1;
     	}
-    	return ~((1<<ofFlowMod.getMatch().getNetworkDestinationMaskLen())-1);
+    	return ~((1<<this.getMatch().getNetworkDestinationMaskLen())-1);
     }
     //TODO:Topo
     
@@ -155,14 +186,15 @@ public class ACLRequest{
     public void allFlows(){
     	this.app = "ALL_FLOWS";
     }
-    //Maxpriority
-
+    
+    // Max priority
     public int getPriority(){
-    	if(ofFlowMod != null){
-    		return ofFlowMod.getPriority();
+    	if(match != null){
+    		return this.priority;
     	}
     	return -1;
     }
+    
     //TODO:Flowtable
     
     //action
@@ -171,13 +203,20 @@ public class ACLRequest{
     }
     //Notification
     public boolean checkNotification(String s){
-    	return s == notification;
+    	OFNotificationLevel outer = OFNotificationLevel.DEFAULT;
+    	if(s.equals("EVENT_INTERCEPTION")){
+    		outer = OFNotificationLevel.EVENT_INTERCEPTION;
+    	}
+    	else if(s.equals("MODIFY_EVENT_ORDER")){
+    		outer = OFNotificationLevel.MODIFY_EVENT_ORDER;
+    	}
+    	return outer == this.notification;
     }
     public void eventInterception(){
-    	this.notification = "EVENT_INTERCEPTION";
+    	this.notification = OFNotificationLevel.EVENT_INTERCEPTION;
     }
     public void modifyEventOrder(){
-    	this.notification = "MODIFY_EVENT_ORDER";
+    	this.notification = OFNotificationLevel.MODIFY_EVENT_ORDER;
     }
     //Statistics
     public Boolean cmpStatistics(String perm){
@@ -199,30 +238,19 @@ public class ACLRequest{
     }
     public String getStatistics(){
     	switch(this.statistics){
-    	case DESC:
+    	case SWITCH_LEVEL:
     		return "SWITCH_LEVEL";
-    	case FLOW:
+    	case FLOW_LEVEL:
     		return "FLOW_LEVEL";
-    	case AGGREGATE:
-    		return "SWITCH_LEVEL";
-    	case TABLE:
-    		return "FLOW_LEVEL";
-    	case PORT:
+    	case PORT_LEVEL:
     		return "PORT_LEVEL";
-    	case QUEUE: 
-    		return "SWITCH_LEVEL";
-    	case VENDOR:
-    		return "SWITCH_LEVEL";
     	default:
     		return "";
     	}
     }
     //pkt_out
     public boolean isPktOut(){
-    	if(this.ofFlowMod != null && ofFlowMod.getType().equals(OFType.PACKET_OUT)){
-    		return true;
-    	}
-    	if(this.ofType != null && this.ofType == OFType.PACKET_OUT){
+    	if(this.match != null && this.getType().equals(OFType.PACKET_OUT)){
     		return true;
     	}
     	return false;

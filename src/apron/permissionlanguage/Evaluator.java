@@ -6,23 +6,16 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import net.floodlightcontroller.topology.ITopologyService;
-import net.floodlightcontroller.topology.NodePortTuple;
-import net.floodlightcontroller.topology.TopologyManager;
 import apron.acl.ACLRequest;
+import apron.acl.ACLRequest.OFActionType;
 import apron.syntaxtree.Operation;
 import apron.syntaxtree.SyntaxTree;
 
 public class Evaluator{
 	public SyntaxTree syn = null;
     public ACLRequest permReq = new ACLRequest();
-    public TopologyManager topo = null;
     
     public Evaluator(SyntaxTree st){
-    	this.syn = st;
-    }
-    public Evaluator(ITopologyService topology, SyntaxTree st){
-    	this.topo = (TopologyManager) topology;
     	this.syn = st;
     }
     
@@ -118,7 +111,7 @@ public class Evaluator{
         		return true;
     		}
     	case physical_topo:
-    		Set <Long> sws = new HashSet<Long>();
+    		Set <Long> sws = new HashSet<Long>();/*
     		if("ALL_SWITCHES".equals(st.child(0)._string)){
     			sws = topo.getSwitchPorts().keySet();
     		}
@@ -152,15 +145,15 @@ public class Evaluator{
 				default:
 					break;
     			}
-    		}
-    		long sw = permReq.sw;
-    		short port = permReq.ofFlowMod.getMatch().getInputPort();
-    		if(!sws.contains(sw)){
-    			return false;
-    		}
-    		if(!topo.getSwitchPorts().get(sw).contains(port)){
-    			return false;
-    		}
+    		}*/
+    		//long sw = permReq.sw;
+    		//short port = permReq.ofFlowMod.getMatch().getInputPort();
+    		//if(!sws.contains(sw)){
+    		//	return false;
+    		//}
+    		//if(!topo.getSwitchPorts().get(sw).contains(port)){
+    		//	return false;
+    		//}
 /*
     		if("ALL_DIRECT_LINKS".equals(st.child(1)._string)){
     			return true;
@@ -182,16 +175,10 @@ public class Evaluator{
     		String actionSingle = "";
     		for(int i = 0; i < permReq.getActionSize(); ++i){
         		switch(permReq.actions.get(i).getType()){
-       			case OUTPUT:
-       				actionSingle = "FORWARD";
-       			case SET_TP_SRC:
-       				actionSingle = "MODIFY";
-       			case SET_TP_DST:
-       				actionSingle = "MODIFY";
-       			case SET_NW_SRC:
-       				actionSingle = "MODIFY";
-       			case SET_NW_DST:
+        		case MODIFY:
         			actionSingle = "MODIFY";
+        		case FORWARD:
+        			actionSingle = "FORWARD";
 				default:
 					if(!actionSingle.equals(st._string)){
 						return false;						
@@ -238,7 +225,7 @@ public class Evaluator{
     		//TODO
     		break;
     	case notification:
-    		return permReq.notification.equals(st._string);
+    		return permReq.checkNotification(st._string);
     	case statistics:
     		return permReq.cmpStatistics(st._string);
     	case pktout:
