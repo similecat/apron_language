@@ -18,4 +18,34 @@ To make the evaluator run correctly, you need to write extra code within your co
 	1. Methods to transfer API call and its parameters to unified ACL request.
 	2. A wrapper TopologyManager to implement the interface of ITopologyManager.
 	
+1) ACL request.
+ACL need to check following permissions. So any request's related value should be set.
+
+    |flow_predicate                         #flow_predicate_
+    |topo                                   #topo_
+    |ACTION action                          #action_
+    |ownership                              #ownership_
+    |max_priority                           #max_priority_
+    |ownership                              #flow_table_
+    |notification                           #notification_
+    |statistics                             #statistics_
+
+(1) For example, if APP is trying to use flow_mod to add a new flow. 
+	Set the "type" as OFType.FLOW_MOD. (optional)
+	"switchID" should be set. (required)
+	the "match" part should be set, including ip, port, input e.g. 
+	set the action list "actions". "actions" consists of a list of "OFAction". set them according to detailed flow mod.
+	set the priority of the flow.
+
+
+Example(2), if APP is trying to send PACKET_OUT.
+	Set the "type" as OFType.FLOW_MOD. (required)
+	"switchID" should be set. (required)
+	the "match" part should be set, including ip, port, input e.g. (required)
+	
+Example(3), if APP is trying to access to the response(event) from switch.
+	Set the notification level the APP wanted(just INTERCEPTION or want to modify the event: maybe modify the event, drop the event, prevent the event processed by others).
+	
+Example(4), if APP want to access statistics.
+	Set the statistics level according the parameters.
 	

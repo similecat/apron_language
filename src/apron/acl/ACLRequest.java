@@ -8,14 +8,14 @@ import apron.acl.OFMatch;
 public class ACLRequest{
 	
 	//Field
-	private enum OFField{TCP_SRC,TCP_DST,VLAN_ID,IP_SRC,IP_DST};
+	//private enum OFField{TCP_SRC,TCP_DST,VLAN_ID,IP_SRC,IP_DST};
 	
 	// OFAction
 	public enum OFActionType{FORWARD,MODIFY,SET_TP_SRC,SET_TP_DST,SET_NW_SRC,SET_NW_DST};
 	public class OFAction
 	{
 		private OFActionType type;
-		public List<OFField> fields;
+		//public List<OFField> fields;
 		public OFActionType getType()
 		{
 			return type;
@@ -28,6 +28,8 @@ public class ACLRequest{
 	
 	// OF
 	public enum OFType{FLOW_MOD, PACKET_OUT};
+	
+	// switch id;
 	public Long switchID;
 	
 	// type of the detail message: packet_out, flow_mod
@@ -44,7 +46,6 @@ public class ACLRequest{
 
 	// app name
     public String app = new String("");
-    
     
     public String ownership = new String("");
     
@@ -153,13 +154,13 @@ public class ACLRequest{
     
     //Ownership
     public void ownFlows(){
-    	this.app = "OWN_FLOWS";
+    	this.ownership = "OWN_FLOWS";
     }
     public void othersFlows(){
-    	this.app = "OTHERS_FLOWS";
+    	this.ownership = "OTHERS_FLOWS";
     }
     public void allFlows(){
-    	this.app = "ALL_FLOWS";
+    	this.ownership = "ALL_FLOWS";
     }
     
     // Max priority

@@ -2,31 +2,31 @@ package apron.acl;
 
 public class OFMatch {
 
-		int ipSrc,ipSrcMask,ipSrcMaskLen;
-		int ipDst,ipDstMask,ipDstMaskLen;
-		int tcpSrcPort,tcpDstPort;
-		int vlanId;
-		short inputPort;
+	public int ipSrc,ipSrcMask,ipSrcMaskLen;
+	public int ipDst,ipDstMask,ipDstMaskLen;
+	public int tcpSrcPort,tcpDstPort;
+	public int vlanId;
+	public short inputPort;
 
-		int getTransportSource(){
+		public int getTransportSource(){
 			return tcpSrcPort;
 		}
-		int getTransportDestination(){
+		public int getTransportDestination(){
 			return tcpDstPort;
 		}
-		int getDataLayerVirtualLan(){
+		public int getDataLayerVirtualLan(){
 			return vlanId;
 		}
-		int getNetworkSource(){
+		public int getNetworkSource(){
 			return ipSrc;
 		}
-		int getNetworkSourceMaskLen(){
+		public int getNetworkSourceMaskLen(){
 			return ipSrcMaskLen;
 		}
-		int getNetworkDestination(){
+		public int getNetworkDestination(){
 			return ipDst;
 		}
-		int getNetworkDestinationMaskLen(){
+		public int getNetworkDestinationMaskLen(){
 			return ipDstMaskLen;
 		}
 		public short getInputPort(){
