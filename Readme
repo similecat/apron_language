@@ -48,4 +48,7 @@ Example(3), if APP is trying to access to the response(event) from switch.
 	
 Example(4), if APP want to access statistics.
 	Set the statistics level according the parameters.
+	if app want to get the statistics of the switch, then set switch_level.
+	if app want to get the statistics of switch port, then set port_level.
+	if app want to get the statistics of flows, then flow_level.
 	
