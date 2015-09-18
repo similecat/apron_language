@@ -3,6 +3,8 @@ package apron.acl;
 import java.util.ArrayList;
 import java.util.List;
 
+import apron.acl.OFMatch;
+
 public class ACLRequest{
 	
 	//Field
@@ -26,34 +28,7 @@ public class ACLRequest{
 	
 	// OF
 	public enum OFType{FLOW_MOD, PACKET_OUT};
-	public class OFMatch{
-		int ipSrc,ipSrcMask,ipSrcMaskLen;
-		int ipDst,ipDstMask,ipDstMaskLen;
-		int tcpSrcPort,tcpDstPort;
-		int vlanId;
-
-		int getTransportSource(){
-			return tcpSrcPort;
-		}
-		int getTransportDestination(){
-			return tcpDstPort;
-		}
-		int getDataLayerVirtualLan(){
-			return vlanId;
-		}
-		int getNetworkSource(){
-			return ipSrc;
-		}
-		int getNetworkSourceMaskLen(){
-			return ipSrcMaskLen;
-		}
-		int getNetworkDestination(){
-			return ipDst;
-		}
-		int getNetworkDestinationMaskLen(){
-			return ipDstMaskLen;
-		}
-	}
+	public Long switchID;
 	
 	// type of the detail message: packet_out, flow_mod
 	OFType type;
@@ -89,10 +64,10 @@ public class ACLRequest{
     public void APP(String s){
     	this.app = s;
     }
-    OFType getType(){
+    public OFType getType(){
     	return type;
     }
-    OFMatch getMatch(){
+    public OFMatch getMatch(){
     	return match;
     }
     //flow_predicate
@@ -255,4 +230,12 @@ public class ACLRequest{
     	}
     	return false;
     }
+	public void setMatch(OFMatch mt) {
+		// TODO Auto-generated method stub
+		this.match = mt;
+	}
+	public void setActions(List<OFAction> actions) {
+		// TODO Auto-generated method stub
+		this.actions = actions;
+	}
 };

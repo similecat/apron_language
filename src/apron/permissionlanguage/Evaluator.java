@@ -2,18 +2,17 @@ package apron.permissionlanguage;
 
 
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 
 import apron.acl.ACLRequest;
-import apron.acl.ACLRequest.OFActionType;
+import apron.acl.ITopologyManager;
 import apron.syntaxtree.Operation;
 import apron.syntaxtree.SyntaxTree;
 
 public class Evaluator{
 	public SyntaxTree syn = null;
     public ACLRequest permReq = new ACLRequest();
+    public ITopologyManager topo;
     
     public Evaluator(SyntaxTree st){
     	this.syn = st;
@@ -35,6 +34,10 @@ public class Evaluator{
         ret |= (Integer.parseInt(ipArr[3]) & 0xFF)<<0;
         return ret;
     }
+	public void setTopologyManager(ITopologyManager topo)
+	{
+		this.topo = topo;
+	}
     public boolean execute(SyntaxTree st){
     	switch(st.Type){
     	case program:
@@ -111,7 +114,14 @@ public class Evaluator{
         		return true;
     		}
     	case physical_topo:
-    		Set <Long> sws = new HashSet<Long>();/*
+    		Set <Long> switchSet = new HashSet<Long>();
+    		if("ALL_SWITCHES".equals(st.child(0)._string)){
+    			switchSet = topo.getAllSwitch();
+    		}
+    		else if("BORDER_SWITCHES".equals(st.child(0)._string)){
+    			switchSet = topo.getBorderSwitch();
+    		}
+    		/*
     		if("ALL_SWITCHES".equals(st.child(0)._string)){
     			sws = topo.getSwitchPorts().keySet();
     		}
@@ -130,31 +140,31 @@ public class Evaluator{
     			for(Iterator<NodePortTuple> it = switchTuple.iterator(); it.hasNext();){
     				sws.add(it.next().getNodeId());
     			}
-    		}
+    		}*/
     		else if("".equals(st.child(0)._string)){
     			SyntaxTree ch = st.child(0).child(0);
     			switch(ch.Type){
     			case sw_idx:
-    				sws.add(ch._long);
+    				switchSet.add(ch._long);
     				break;
     			case sw_idx_list:
     				for(int i = 0; i < ch.childs(); ++i){
-    					sws.add(ch.child(i)._long);
+    					switchSet.add(ch.child(i)._long);
     				}
     				break;
 				default:
 					break;
     			}
-    		}*/
-    		//long sw = permReq.sw;
-    		//short port = permReq.ofFlowMod.getMatch().getInputPort();
-    		//if(!sws.contains(sw)){
-    		//	return false;
-    		//}
-    		//if(!topo.getSwitchPorts().get(sw).contains(port)){
-    		//	return false;
-    		//}
-/*
+    		}
+    		long swID = permReq.switchID;
+    		short port = permReq.getMatch().getInputPort();
+    		if(!switchSet.contains(swID)){
+    			return false;
+    		}
+    		if(!topo.getSwitchPorts(swID).contains(port)){
+    			return false;
+    		}
+
     		if("ALL_DIRECT_LINKS".equals(st.child(1)._string)){
     			return true;
     		}
@@ -163,8 +173,7 @@ public class Evaluator{
     		}
     		else if("".equals(st.child(0)._string)){
     			;
-    		}
-*/    		
+    		}   		
     		return true;
     	case virtual_topo:
     		return true;
