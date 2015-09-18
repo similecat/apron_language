@@ -1,0 +1,21 @@
+/*
+File name: Readme
+*/
+
+The project is used as an independent permission language executor.
+
+To execute a permission checking, you need:
+	1. create the evaluator with permission descriptions.
+	2. create a Access Control Request, and assign this to evaluator.
+	3. run the evaluator.
+
+Sample code as followed:
+	eval = CreateEvaluator();
+	eval.permReq = req;
+	return eval.execute();
+	
+To make the evaluator run correctly, you need to write extra code within your controller:
+	1. Methods to transfer API call and its parameters to unified ACL request.
+	2. A wrapper TopologyManager to implement the interface of ITopologyManager.
+	
+	

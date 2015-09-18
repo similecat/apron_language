@@ -39,7 +39,6 @@ public class Test{
         System.out.println(new FlowPreTestor().execute()?"True":"False");
         System.out.println("Done!");
         
-
 /*
         SyntaxGenerator syn = new SyntaxGenerator();
         SyntaxTree syntree = syn.visit(tree);
