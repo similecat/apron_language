@@ -11,19 +11,23 @@ import apron.syntaxtree.SyntaxTree;
 
 public class Evaluator{
 	public SyntaxTree syn = null;
-    public ACLRequest permReq = new ACLRequest();
+    //public ACLRequest permReq = new ACLRequest();
     public ITopologyManager topo;
     
+
+    public Evaluator(){
+    	//this.syn = st;
+    }
     public Evaluator(SyntaxTree st){
     	this.syn = st;
     }
     
-    public boolean execute(){
-    	return this.execute(this.syn);
+    public boolean execute(ACLRequest permReq){
+    	return this.execute(permReq, this.syn);
     }
-    public boolean execute(ACLRequest permissionRequest){
+    public boolean execute(ACLRequest permReq, ACLRequest permissionRequest){
     	;
-    	return this.execute();
+    	return this.execute(permReq);
     }
 	public int stringToIp(String ipAddr){
     	int ret = 0;
@@ -38,13 +42,17 @@ public class Evaluator{
 	{
 		this.topo = topo;
 	}
-    public boolean execute(SyntaxTree st){
+    public boolean execute(ACLRequest permReq, SyntaxTree st){
+    	
+    	if(st == null)
+    		return true;
+    	
     	switch(st.Type){
     	case program:
-    		return this.execute(st.child(0));
+    		return this.execute(permReq, st.child(0));
     	case perm_list:
     		for(int i = 0; i < st.childs(); ++i){
-    			if(this.execute(st.child(i)) == false){
+    			if(this.execute(permReq, st.child(i)) == false){
     				return false;
     			}
     		}
@@ -53,8 +61,8 @@ public class Evaluator{
     		if(st.childs() == 1){
 				return true;
 			}
-    		if(this.execute(st.child(0))){
-    			return this.execute(st.child(1));
+    		if(this.execute(permReq, st.child(0))){
+    			return this.execute(permReq, st.child(1));
     		}
     		else{
     			return true;
@@ -67,7 +75,7 @@ public class Evaluator{
     	case filter_expr:
     		//operation and
     		for(int i = 0; i < st.childs(); ++i){
-    			if(this.execute(st.child(i)) == false){
+    			if(this.execute(permReq, st.child(i)) == false){
     				return false;
     			}
     		}
@@ -76,19 +84,19 @@ public class Evaluator{
     	case filter_term:
     		//operation or
     		for(int i = 0; i < st.childs(); ++i){
-    			if(this.execute(st.child(i))){
+    			if(this.execute(permReq, st.child(i))){
     				return true;
     			}
     		}
     		return false;
     	case filter_factor:
     		if(st.op.equals(Operation.NOT)&&
-    				this.execute(st.child(0))){
+    				this.execute(permReq, st.child(0))){
     			return false;
     		}
     		return true;
     	case filter_not_factor:
-    		return this.execute(st.child(0));
+    		return this.execute(permReq, st.child(0));
     	case flow_predicate:
     		//TODO
     		String field = st.child(0)._string;
@@ -179,7 +187,7 @@ public class Evaluator{
     		return true;
     	case action:
     		if(st.childs()>0){
-    			return this.execute(st.child(0));
+    			return this.execute(permReq, st.child(0));
     		}
     		String actionSingle = "";
     		for(int i = 0; i < permReq.getActionSize(); ++i){

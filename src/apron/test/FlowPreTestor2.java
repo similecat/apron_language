@@ -33,8 +33,7 @@ public class FlowPreTestor2 {
 		Evaluator eval;
 		try {
 			eval = CreateEvaluator();
-			eval.permReq = req;
-			return eval.execute();
+			return eval.execute(req);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
