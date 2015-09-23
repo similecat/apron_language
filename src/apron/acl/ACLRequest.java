@@ -15,6 +15,10 @@ public class ACLRequest{
 	public class OFAction
 	{
 		private OFActionType type;
+		public OFAction(OFActionType type)
+		{
+			this.type = type;
+		}
 		//public List<OFField> fields;
 		public OFActionType getType()
 		{
