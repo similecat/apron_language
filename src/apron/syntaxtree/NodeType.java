@@ -15,7 +15,11 @@ public enum NodeType{
 	binding,var_perm,app_name,perm_expr,assert_list,assert_stmt,
 	assert_expr,boolean_expr,cmp_operator,exclusive,
 	//
-	error
+	error,
+	//
+	value
+	//
+	
 	;
 	public boolean is_top(){
 		if(this.equals(NodeType.program)||

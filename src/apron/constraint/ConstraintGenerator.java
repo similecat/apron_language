@@ -395,10 +395,10 @@ public class ConstraintGenerator extends ConstraintBaseVisitor<SyntaxTree> {
     	ret.add(visit(ctx.field_list()));
         return ret;
     }
-    public SyntaxTree visitFieldS(ApronParser.FieldSContext ctx){
+    public SyntaxTree visitFieldS(ApronParser.FieldS1Context ctx){
         return visit(ctx.field());
     }
-    public SyntaxTree visitFieldM(ApronParser.FieldMContext ctx){
+    public SyntaxTree visitFieldM(ApronParser.FieldM1Context ctx){
     	SyntaxTree ret = new SyntaxTree(NodeType.field_list);
     	ret.add(visit(ctx.field()));
     	ret.add(visit(ctx.field_list()));

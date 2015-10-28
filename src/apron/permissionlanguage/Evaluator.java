@@ -186,9 +186,10 @@ public class Evaluator{
     	case virtual_topo:
     		return true;
     	case action:
-    		if(st.childs()>0){
+    		if(st.childs() > 0){
     			return this.execute(permReq, st.child(0));
     		}
+    		//TODO: add more actions to the checking list, try to modify the type of node value from string to OFAction.
     		String actionSingle = "";
     		for(int i = 0; i < permReq.getActionSize(); ++i){
         		switch(permReq.actions.get(i).getType()){
@@ -204,6 +205,8 @@ public class Evaluator{
     		}
     		return true;
     	case field_list:
+    		//TODO: add more fields to the checking list, try to modify the type of node value from string to field.
+    		
     		String actionModify = "";
     		for(int i = 0; i < permReq.getActionSize(); ++i){
     			switch(permReq.actions.get(i).getType()){
@@ -244,7 +247,7 @@ public class Evaluator{
     	case notification:
     		return permReq.checkNotification(st._string);
     	case statistics:
-    		return permReq.cmpStatistics(st._string);
+    		return permReq.checkStatistics(st._string);
     	case pktout:
     		return !(permReq.isPktOut() && st._int == 0);
     	case network:

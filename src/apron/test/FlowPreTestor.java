@@ -12,15 +12,16 @@ import org.antlr.v4.runtime.tree.ParseTree;
 
 import apron.acl.ACLRequest;
 import apron.acl.ACLRequest.OFAction;
-import apron.acl.OFMatch;
+import apron.data.OFMatch;
 import apron.permissionlanguage.ApronLexer;
 import apron.permissionlanguage.ApronParser;
 import apron.permissionlanguage.Evaluator;
 import apron.permissionlanguage.SyntaxGenerator;
 
 public class FlowPreTestor {
-	public String lan = new String("PERM flow LIMITING IP_SRC 165.124.184.0");
-	public ACLRequest req = null;
+	//public String lan = new String("PERM flow_s LIMITING IP_SRC 165.124.184.0");
+	public String lan = new String("PERM flow_s LIMITING ETH_SRC ff:ff:ff:ff:ff:ff");
+	public ACLRequest req = new ACLRequest();
 	public FlowPreTestor(){
 		OFMatch mt = new OFMatch();
 		List<OFAction> neoActions = new LinkedList<OFAction>();

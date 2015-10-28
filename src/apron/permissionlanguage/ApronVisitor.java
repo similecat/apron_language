@@ -4,13 +4,9 @@ import org.antlr.v4.runtime.tree.*;
 import org.antlr.v4.runtime.Token;
 
 public interface ApronVisitor<T> extends ParseTreeVisitor<T> {
-	T visitFieldS(ApronParser.FieldSContext ctx);
-
 	T visitPriorityMin(ApronParser.PriorityMinContext ctx);
 
 	T visitVirtualSwitchSetS(ApronParser.VirtualSwitchSetSContext ctx);
-
-	T visitFieldM(ApronParser.FieldMContext ctx);
 
 	T visitWildcard(ApronParser.WildcardContext ctx);
 
@@ -37,6 +33,8 @@ public interface ApronVisitor<T> extends ParseTreeVisitor<T> {
 	T visitVirtual_topo(ApronParser.Virtual_topoContext ctx);
 
 	T visitFieldMask(ApronParser.FieldMaskContext ctx);
+
+	T visitMacFieldPre(ApronParser.MacFieldPreContext ctx);
 
 	T visitFlowLevel(ApronParser.FlowLevelContext ctx);
 
@@ -80,6 +78,8 @@ public interface ApronVisitor<T> extends ParseTreeVisitor<T> {
 
 	T visitPortLevel(ApronParser.PortLevelContext ctx);
 
+	T visitActionOp(ApronParser.ActionOpContext ctx);
+
 	T visitNetworkAllow(ApronParser.NetworkAllowContext ctx);
 
 	T visitAllFlows(ApronParser.AllFlowsContext ctx);
@@ -89,6 +89,10 @@ public interface ApronVisitor<T> extends ParseTreeVisitor<T> {
 	T visitEventInterception(ApronParser.EventInterceptionContext ctx);
 
 	T visitPktOutAllow(ApronParser.PktOutAllowContext ctx);
+
+	T visitFieldM1(ApronParser.FieldM1Context ctx);
+
+	T visitFieldM2(ApronParser.FieldM2Context ctx);
 
 	T visitFlowTable(ApronParser.FlowTableContext ctx);
 
@@ -126,9 +130,9 @@ public interface ApronVisitor<T> extends ParseTreeVisitor<T> {
 
 	T visitPermM(ApronParser.PermMContext ctx);
 
-	T visitAllDriectLinks(ApronParser.AllDriectLinksContext ctx);
-
 	T visitLink_idx(ApronParser.Link_idxContext ctx);
+
+	T visitAllDriectLinks(ApronParser.AllDriectLinksContext ctx);
 
 	T visitPriorityMax(ApronParser.PriorityMaxContext ctx);
 
@@ -144,11 +148,21 @@ public interface ApronVisitor<T> extends ParseTreeVisitor<T> {
 
 	T visitProcessDeny(ApronParser.ProcessDenyContext ctx);
 
+	T visitFieldS1(ApronParser.FieldS1Context ctx);
+
+	T visitFieldM3(ApronParser.FieldM3Context ctx);
+
+	T visitFieldS2(ApronParser.FieldS2Context ctx);
+
+	T visitFieldS3(ApronParser.FieldS3Context ctx);
+
 	T visitLinkList(ApronParser.LinkListContext ctx);
 
 	T visitOthersFlows(ApronParser.OthersFlowsContext ctx);
 
 	T visitNotificationS(ApronParser.NotificationSContext ctx);
+
+	T visitIntFieldPre(ApronParser.IntFieldPreContext ctx);
 
 	T visitField(ApronParser.FieldContext ctx);
 
@@ -161,4 +175,6 @@ public interface ApronVisitor<T> extends ParseTreeVisitor<T> {
 	T visitFlowPredicate(ApronParser.FlowPredicateContext ctx);
 
 	T visitLinkListM(ApronParser.LinkListMContext ctx);
+
+	T visitMacVal(ApronParser.MacValContext ctx);
 }

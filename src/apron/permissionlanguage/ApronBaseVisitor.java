@@ -5,13 +5,9 @@ import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.ParserRuleContext;
 
 public class ApronBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements ApronVisitor<T> {
-	@Override public T visitFieldS(ApronParser.FieldSContext ctx) { return visitChildren(ctx); }
-
 	@Override public T visitPriorityMin(ApronParser.PriorityMinContext ctx) { return visitChildren(ctx); }
 
 	@Override public T visitVirtualSwitchSetS(ApronParser.VirtualSwitchSetSContext ctx) { return visitChildren(ctx); }
-
-	@Override public T visitFieldM(ApronParser.FieldMContext ctx) { return visitChildren(ctx); }
 
 	@Override public T visitWildcard(ApronParser.WildcardContext ctx) { return visitChildren(ctx); }
 
@@ -38,6 +34,8 @@ public class ApronBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements 
 	@Override public T visitVirtual_topo(ApronParser.Virtual_topoContext ctx) { return visitChildren(ctx); }
 
 	@Override public T visitFieldMask(ApronParser.FieldMaskContext ctx) { return visitChildren(ctx); }
+
+	@Override public T visitMacFieldPre(ApronParser.MacFieldPreContext ctx) { return visitChildren(ctx); }
 
 	@Override public T visitFlowLevel(ApronParser.FlowLevelContext ctx) { return visitChildren(ctx); }
 
@@ -81,6 +79,8 @@ public class ApronBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements 
 
 	@Override public T visitPortLevel(ApronParser.PortLevelContext ctx) { return visitChildren(ctx); }
 
+	@Override public T visitActionOp(ApronParser.ActionOpContext ctx) { return visitChildren(ctx); }
+
 	@Override public T visitNetworkAllow(ApronParser.NetworkAllowContext ctx) { return visitChildren(ctx); }
 
 	@Override public T visitAllFlows(ApronParser.AllFlowsContext ctx) { return visitChildren(ctx); }
@@ -90,6 +90,10 @@ public class ApronBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements 
 	@Override public T visitEventInterception(ApronParser.EventInterceptionContext ctx) { return visitChildren(ctx); }
 
 	@Override public T visitPktOutAllow(ApronParser.PktOutAllowContext ctx) { return visitChildren(ctx); }
+
+	@Override public T visitFieldM1(ApronParser.FieldM1Context ctx) { return visitChildren(ctx); }
+
+	@Override public T visitFieldM2(ApronParser.FieldM2Context ctx) { return visitChildren(ctx); }
 
 	@Override public T visitFlowTable(ApronParser.FlowTableContext ctx) { return visitChildren(ctx); }
 
@@ -127,9 +131,9 @@ public class ApronBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements 
 
 	@Override public T visitPermM(ApronParser.PermMContext ctx) { return visitChildren(ctx); }
 
-	@Override public T visitAllDriectLinks(ApronParser.AllDriectLinksContext ctx) { return visitChildren(ctx); }
-
 	@Override public T visitLink_idx(ApronParser.Link_idxContext ctx) { return visitChildren(ctx); }
+
+	@Override public T visitAllDriectLinks(ApronParser.AllDriectLinksContext ctx) { return visitChildren(ctx); }
 
 	@Override public T visitPriorityMax(ApronParser.PriorityMaxContext ctx) { return visitChildren(ctx); }
 
@@ -145,11 +149,21 @@ public class ApronBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements 
 
 	@Override public T visitProcessDeny(ApronParser.ProcessDenyContext ctx) { return visitChildren(ctx); }
 
+	@Override public T visitFieldS1(ApronParser.FieldS1Context ctx) { return visitChildren(ctx); }
+
+	@Override public T visitFieldM3(ApronParser.FieldM3Context ctx) { return visitChildren(ctx); }
+
+	@Override public T visitFieldS2(ApronParser.FieldS2Context ctx) { return visitChildren(ctx); }
+
+	@Override public T visitFieldS3(ApronParser.FieldS3Context ctx) { return visitChildren(ctx); }
+
 	@Override public T visitLinkList(ApronParser.LinkListContext ctx) { return visitChildren(ctx); }
 
 	@Override public T visitOthersFlows(ApronParser.OthersFlowsContext ctx) { return visitChildren(ctx); }
 
 	@Override public T visitNotificationS(ApronParser.NotificationSContext ctx) { return visitChildren(ctx); }
+
+	@Override public T visitIntFieldPre(ApronParser.IntFieldPreContext ctx) { return visitChildren(ctx); }
 
 	@Override public T visitField(ApronParser.FieldContext ctx) { return visitChildren(ctx); }
 
@@ -162,4 +176,6 @@ public class ApronBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements 
 	@Override public T visitFlowPredicate(ApronParser.FlowPredicateContext ctx) { return visitChildren(ctx); }
 
 	@Override public T visitLinkListM(ApronParser.LinkListMContext ctx) { return visitChildren(ctx); }
+
+	@Override public T visitMacVal(ApronParser.MacValContext ctx) { return visitChildren(ctx); }
 }

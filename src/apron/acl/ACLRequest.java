@@ -3,15 +3,33 @@ package apron.acl;
 import java.util.ArrayList;
 import java.util.List;
 
-import apron.acl.OFMatch;
+import apron.data.Flow;
+import apron.data.FlowTables;
+import apron.data.OFMatch;
 
 public class ACLRequest{
-	
-	//Field
+
+	// 0. App name
+	// the identify of each API caller.
+    public String app = new String("");
+    
+	// 1. flow predicate
 	//private enum OFField{TCP_SRC,TCP_DST,VLAN_ID,IP_SRC,IP_DST};
+    Flow flow = null;
 	
-	// OFAction
-	public enum OFActionType{FORWARD,MODIFY,SET_TP_SRC,SET_TP_DST,SET_NW_SRC,SET_NW_DST};
+	// 2. actions
+	public enum OFActionType{
+		//forwarding related
+		Drop,FORWARD,MODIFY,SET_TP_SRC,SET_TP_DST,SET_NW_SRC,SET_NW_DST
+		//TTL related
+		,COPY_TTL_OUT, COPY_TTL_IN
+		//MPLS related
+		,SET_MPLS_TTL, DEC_MPLS_TTL, PUSH_MPLS, POP_MPLS
+		//VLAN related
+		,PUSH_VLAN,POP_VLAN
+		// Others
+		,SET_QUEUE,GROUP,SET_NW_TTL,DEC_NW_TTL,PUSH_PBB,POP_PBB,EXPERIMENTER
+		};
 	public class OFAction
 	{
 		private OFActionType type;
@@ -21,13 +39,155 @@ public class ACLRequest{
 			return type;
 		}
 	}
+
+    public List<OFAction> actions = new ArrayList<OFAction>();
 	
-	// LEVEL
+	// 3. Notification Level
 	private enum OFNotificationLevel{DEFAULT,EVENT_INTERCEPTION, MODIFY_EVENT_ORDER};
+    public OFNotificationLevel notification;
+	
+    // 4. statistics level
+	/*
+	 * There are 8 types of statistics in OpenFlow spec 1.3.0.
+	 * The value is specified in page 52, or see as follows:
+	 * 
+	 * 
+	 * FLOW_LEVEL <= flow stats, table stats
+	 * PORT_LEVEL <= port stats, port blocked
+	 * SWITCH_LEVEL <= other
+	 */
+	
 	private enum OFStatisticsLevel{FLOW_LEVEL,PORT_LEVEL,SWITCH_LEVEL};
 	
+    public OFStatisticsLevel statistics = null;
+    public void setStatisticsLevelFlow()
+    {
+    	// set the value of statistics as FLOW_LEVEL.
+    	statistics = OFStatisticsLevel.FLOW_LEVEL;
+    }
+    public void setStatisticsLevelPort()
+    {
+    	statistics = OFStatisticsLevel.PORT_LEVEL;
+    }
+    public void setStatisticsLevelSwitch()
+    {
+    	statistics = OFStatisticsLevel.SWITCH_LEVEL;
+    }
+    public boolean isFlowLevel()
+    {
+    	if( statistics == null || statistics != OFStatisticsLevel.FLOW_LEVEL)
+    		return false;
+    	return true;
+    }
+    public boolean isPortLevel()
+    {
+    	if( statistics == null || statistics != OFStatisticsLevel.PORT_LEVEL)
+    		return false;
+    	return true;
+    }
+    public boolean isSwitchLevel()
+    {
+    	if( statistics == null || statistics != OFStatisticsLevel.SWITCH_LEVEL)
+    		return false;
+    	return true;
+    }
+    public boolean isStatisticsTrue(OFStatisticsLevel val)
+    {
+    	return val == statistics;
+    }
+    
+    public boolean checkStatistics(String stats){
+    	if(stats.equals("FLOW_LEVEL")){
+    		return isStatisticsTrue(OFStatisticsLevel.FLOW_LEVEL);
+    	}
+    	else if(stats.equals("PORT_LEVEL")){
+    		return isStatisticsTrue(OFStatisticsLevel.PORT_LEVEL);
+    	}
+    	else if(stats.equals("SWITCH_LEVEL")){
+    		return isStatisticsTrue(OFStatisticsLevel.SWITCH_LEVEL);
+    	}
+    	else{
+    		return isStatisticsTrue(null);
+    	}
+    }
+	
+    // 5. virtual table
+    FlowTables virtTable;
+    //TODO: add a handler to add/del rules.
+    public class Handler{
+    	// stored data
+    	public Flow flow;
+    	public OFType type;
+    	
+    	// ref data
+    	FlowTables virtTable;
+    	Long switchID;
+    	String owner;
+    	
+    	//TODO: better way to restore table.
+    	public void update(){
+    		if(type == OFType.FLOW_ADD){
+    			virtTable.get(switchID).insert(flow, owner);
+    		}
+    		else if(type == OFType.FLOW_DEL){
+    			virtTable.get(switchID).remove(flow);
+    		}
+    	}
+    	public void rollback(){
+    		;
+    	}
+    }
+    
+    // 6. flow table permission
+    public boolean checkOwnRule(){
+    	// a. check if this request access flows.
+    	// it should be only del/modify.
+    	if(this.flow == null){
+    		// TODO: remove the scenario of add.
+    		return true;
+    	}
+    	// b. check the owner.
+    	if(virtTable.get(switchID).getOwner(this.flow).equals(app)){
+    		return true;
+    	}
+    	return false;
+    }
+
+    public boolean checkOtherRule(){
+    	// a. check if this request access flows.
+    	if(this.flow == null){
+        	// TODO: remove the scenario of add.
+    		return true;
+    	}
+    	// b. check the owner.
+    	if(!virtTable.get(switchID).getOwner(this.flow).equals(app)){
+    		return true;
+    	}
+    	return false;
+    }
+    
+    public boolean checkAllRule(){
+    	return true;
+    }
+    
+    // 7. size permission
+    public boolean checkRuleCount(int maxRule){
+    	if(maxRule <= virtTable.get(switchID).size()){
+    		return false;
+    	}
+    	return true;
+    }
+    
+    public boolean checkRulePercentage(float maxRulePer){
+    	if(maxRulePer < virtTable.get(switchID).fullness()){
+    		return false;
+    	}
+    	return true;
+    }
+    
+    
 	// OF
-	public enum OFType{FLOW_MOD, PACKET_OUT};
+	public enum OFType{FLOW_MOD, FLOW_ADD, FLOW_DEL, PACKET_OUT};
 	
 	// switch id;
 	public Long switchID;
@@ -41,22 +201,14 @@ public class ACLRequest{
 	// priority
 	int priority;
 	
-	// action list if it's flow_mod.
-    public List<OFAction> actions = new ArrayList<OFAction>();
 
-	// app name
-    public String app = new String("");
     
     public String ownership = new String("");
     
     public Integer rules_per_switch = new Integer(0);
     public Float size_per_switch = new Float(0.0);
     
-    // notification level
-    public OFNotificationLevel notification;
     
-    // statistics level
-    public OFStatisticsLevel statistics = null;
     
     public int network = 0;
     public int filesystem = 0;
@@ -150,6 +302,7 @@ public class ACLRequest{
     	}
     	return ~((1<<this.getMatch().getNetworkDestinationMaskLen())-1);
     }
+    
     //TODO:Topo
     
     //Ownership
@@ -193,36 +346,6 @@ public class ACLRequest{
     }
     public void modifyEventOrder(){
     	this.notification = OFNotificationLevel.MODIFY_EVENT_ORDER;
-    }
-    //Statistics
-    public Boolean cmpStatistics(String perm){
-    	return this.levelStatistics(getStatistics()) >= 
-    			this.levelStatistics(perm);
-    }
-    public int levelStatistics(String s){
-    	if(s.equals("FLOW_LEVEL")){
-    		return 1;
-    	}
-    	else if(s.equals("PORT_LEVEL")){
-    		return 2;
-    	}
-    	else if(s.equals("SWITCH_LEVEL")){
-    		return 3;
-    	}
-    	else
-    		return 0;
-    }
-    public String getStatistics(){
-    	switch(this.statistics){
-    	case SWITCH_LEVEL:
-    		return "SWITCH_LEVEL";
-    	case FLOW_LEVEL:
-    		return "FLOW_LEVEL";
-    	case PORT_LEVEL:
-    		return "PORT_LEVEL";
-    	default:
-    		return "";
-    	}
     }
     //pkt_out
     public boolean isPktOut(){

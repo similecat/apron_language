@@ -12,7 +12,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 
 import apron.acl.ACLRequest;
 import apron.acl.ACLRequest.OFAction;
-import apron.acl.OFMatch;
+import apron.data.OFMatch;
 import apron.permissionlanguage.ApronLexer;
 import apron.permissionlanguage.ApronParser;
 import apron.permissionlanguage.Evaluator;

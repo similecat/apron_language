@@ -1,7 +1,7 @@
 package apron.permissionlanguage;
 
 import apron.syntaxtree.*;
-public class SyntaxGenerator extends ApronBaseVisitor <SyntaxTree>{
+public class SyntaxGenerator extends ApronBaseVisitor <SyntaxTree> implements ApronVisitor <SyntaxTree>{
     public SyntaxTree visitFinal(ApronParser.FinalContext ctx){
         SyntaxTree ret = new SyntaxTree(NodeType.program);
         ret.add(visit(ctx.perm_list()));
@@ -116,7 +116,19 @@ public class SyntaxGenerator extends ApronBaseVisitor <SyntaxTree>{
         ret.add(visit(ctx.val()));
         return ret;
     }
-    
+
+	public SyntaxTree visitMacPre(ApronParser.MacFieldPreContext ctx){
+    	SyntaxTree ret = new SyntaxTree(NodeType.flow_predicate);
+    	ret.data(4);
+		ret.add(visitChildren(ctx));
+		return ret;
+	}	
+	public SyntaxTree visitMacVal(ApronParser.MacValContext ctx){
+    	SyntaxTree ret = new SyntaxTree(NodeType.value);
+    	ret.data(ctx.getText());
+		return ret;
+	}
+
     public SyntaxTree visitValInt(ApronParser.ValIntContext ctx){
     	SyntaxTree ret = new SyntaxTree(NodeType.flow_predicate);
         ret.data(Integer.valueOf(ctx.INT().getText()));
@@ -285,10 +297,10 @@ public class SyntaxGenerator extends ApronBaseVisitor <SyntaxTree>{
     	ret.add(visit(ctx.field_list()));
         return ret;
     }
-    public SyntaxTree visitFieldS(ApronParser.FieldSContext ctx){
+    public SyntaxTree visitFieldS(ApronParser.FieldS1Context ctx){
         return visit(ctx.field());
     }
-    public SyntaxTree visitFieldM(ApronParser.FieldMContext ctx){
+    public SyntaxTree visitFieldM(ApronParser.FieldM1Context ctx){
     	SyntaxTree ret = new SyntaxTree(NodeType.field_list);
     	ret.add(visit(ctx.field()));
     	ret.add(visit(ctx.field_list()));

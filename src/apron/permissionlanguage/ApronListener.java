@@ -4,17 +4,11 @@ import org.antlr.v4.runtime.tree.*;
 import org.antlr.v4.runtime.Token;
 
 public interface ApronListener extends ParseTreeListener {
-	void enterFieldS(ApronParser.FieldSContext ctx);
-	void exitFieldS(ApronParser.FieldSContext ctx);
-
 	void enterPriorityMin(ApronParser.PriorityMinContext ctx);
 	void exitPriorityMin(ApronParser.PriorityMinContext ctx);
 
 	void enterVirtualSwitchSetS(ApronParser.VirtualSwitchSetSContext ctx);
 	void exitVirtualSwitchSetS(ApronParser.VirtualSwitchSetSContext ctx);
-
-	void enterFieldM(ApronParser.FieldMContext ctx);
-	void exitFieldM(ApronParser.FieldMContext ctx);
 
 	void enterWildcard(ApronParser.WildcardContext ctx);
 	void exitWildcard(ApronParser.WildcardContext ctx);
@@ -54,6 +48,9 @@ public interface ApronListener extends ParseTreeListener {
 
 	void enterFieldMask(ApronParser.FieldMaskContext ctx);
 	void exitFieldMask(ApronParser.FieldMaskContext ctx);
+
+	void enterMacFieldPre(ApronParser.MacFieldPreContext ctx);
+	void exitMacFieldPre(ApronParser.MacFieldPreContext ctx);
 
 	void enterFlowLevel(ApronParser.FlowLevelContext ctx);
 	void exitFlowLevel(ApronParser.FlowLevelContext ctx);
@@ -118,6 +115,9 @@ public interface ApronListener extends ParseTreeListener {
 	void enterPortLevel(ApronParser.PortLevelContext ctx);
 	void exitPortLevel(ApronParser.PortLevelContext ctx);
 
+	void enterActionOp(ApronParser.ActionOpContext ctx);
+	void exitActionOp(ApronParser.ActionOpContext ctx);
+
 	void enterNetworkAllow(ApronParser.NetworkAllowContext ctx);
 	void exitNetworkAllow(ApronParser.NetworkAllowContext ctx);
 
@@ -132,6 +132,12 @@ public interface ApronListener extends ParseTreeListener {
 
 	void enterPktOutAllow(ApronParser.PktOutAllowContext ctx);
 	void exitPktOutAllow(ApronParser.PktOutAllowContext ctx);
+
+	void enterFieldM1(ApronParser.FieldM1Context ctx);
+	void exitFieldM1(ApronParser.FieldM1Context ctx);
+
+	void enterFieldM2(ApronParser.FieldM2Context ctx);
+	void exitFieldM2(ApronParser.FieldM2Context ctx);
 
 	void enterFlowTable(ApronParser.FlowTableContext ctx);
 	void exitFlowTable(ApronParser.FlowTableContext ctx);
@@ -187,11 +193,11 @@ public interface ApronListener extends ParseTreeListener {
 	void enterPermM(ApronParser.PermMContext ctx);
 	void exitPermM(ApronParser.PermMContext ctx);
 
-	void enterAllDriectLinks(ApronParser.AllDriectLinksContext ctx);
-	void exitAllDriectLinks(ApronParser.AllDriectLinksContext ctx);
-
 	void enterLink_idx(ApronParser.Link_idxContext ctx);
 	void exitLink_idx(ApronParser.Link_idxContext ctx);
+
+	void enterAllDriectLinks(ApronParser.AllDriectLinksContext ctx);
+	void exitAllDriectLinks(ApronParser.AllDriectLinksContext ctx);
 
 	void enterPriorityMax(ApronParser.PriorityMaxContext ctx);
 	void exitPriorityMax(ApronParser.PriorityMaxContext ctx);
@@ -214,6 +220,18 @@ public interface ApronListener extends ParseTreeListener {
 	void enterProcessDeny(ApronParser.ProcessDenyContext ctx);
 	void exitProcessDeny(ApronParser.ProcessDenyContext ctx);
 
+	void enterFieldS1(ApronParser.FieldS1Context ctx);
+	void exitFieldS1(ApronParser.FieldS1Context ctx);
+
+	void enterFieldM3(ApronParser.FieldM3Context ctx);
+	void exitFieldM3(ApronParser.FieldM3Context ctx);
+
+	void enterFieldS2(ApronParser.FieldS2Context ctx);
+	void exitFieldS2(ApronParser.FieldS2Context ctx);
+
+	void enterFieldS3(ApronParser.FieldS3Context ctx);
+	void exitFieldS3(ApronParser.FieldS3Context ctx);
+
 	void enterLinkList(ApronParser.LinkListContext ctx);
 	void exitLinkList(ApronParser.LinkListContext ctx);
 
@@ -222,6 +240,9 @@ public interface ApronListener extends ParseTreeListener {
 
 	void enterNotificationS(ApronParser.NotificationSContext ctx);
 	void exitNotificationS(ApronParser.NotificationSContext ctx);
+
+	void enterIntFieldPre(ApronParser.IntFieldPreContext ctx);
+	void exitIntFieldPre(ApronParser.IntFieldPreContext ctx);
 
 	void enterField(ApronParser.FieldContext ctx);
 	void exitField(ApronParser.FieldContext ctx);
@@ -240,4 +261,7 @@ public interface ApronListener extends ParseTreeListener {
 
 	void enterLinkListM(ApronParser.LinkListMContext ctx);
 	void exitLinkListM(ApronParser.LinkListMContext ctx);
+
+	void enterMacVal(ApronParser.MacValContext ctx);
+	void exitMacVal(ApronParser.MacValContext ctx);
 }

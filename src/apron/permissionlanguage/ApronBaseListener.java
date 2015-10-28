@@ -7,17 +7,11 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 import org.antlr.v4.runtime.tree.ErrorNode;
 
 public class ApronBaseListener implements ApronListener {
-	@Override public void enterFieldS(ApronParser.FieldSContext ctx) { }
-	@Override public void exitFieldS(ApronParser.FieldSContext ctx) { }
-
 	@Override public void enterPriorityMin(ApronParser.PriorityMinContext ctx) { }
 	@Override public void exitPriorityMin(ApronParser.PriorityMinContext ctx) { }
 
 	@Override public void enterVirtualSwitchSetS(ApronParser.VirtualSwitchSetSContext ctx) { }
 	@Override public void exitVirtualSwitchSetS(ApronParser.VirtualSwitchSetSContext ctx) { }
-
-	@Override public void enterFieldM(ApronParser.FieldMContext ctx) { }
-	@Override public void exitFieldM(ApronParser.FieldMContext ctx) { }
 
 	@Override public void enterWildcard(ApronParser.WildcardContext ctx) { }
 	@Override public void exitWildcard(ApronParser.WildcardContext ctx) { }
@@ -57,6 +51,9 @@ public class ApronBaseListener implements ApronListener {
 
 	@Override public void enterFieldMask(ApronParser.FieldMaskContext ctx) { }
 	@Override public void exitFieldMask(ApronParser.FieldMaskContext ctx) { }
+
+	@Override public void enterMacFieldPre(ApronParser.MacFieldPreContext ctx) { }
+	@Override public void exitMacFieldPre(ApronParser.MacFieldPreContext ctx) { }
 
 	@Override public void enterFlowLevel(ApronParser.FlowLevelContext ctx) { }
 	@Override public void exitFlowLevel(ApronParser.FlowLevelContext ctx) { }
@@ -121,6 +118,9 @@ public class ApronBaseListener implements ApronListener {
 	@Override public void enterPortLevel(ApronParser.PortLevelContext ctx) { }
 	@Override public void exitPortLevel(ApronParser.PortLevelContext ctx) { }
 
+	@Override public void enterActionOp(ApronParser.ActionOpContext ctx) { }
+	@Override public void exitActionOp(ApronParser.ActionOpContext ctx) { }
+
 	@Override public void enterNetworkAllow(ApronParser.NetworkAllowContext ctx) { }
 	@Override public void exitNetworkAllow(ApronParser.NetworkAllowContext ctx) { }
 
@@ -135,6 +135,12 @@ public class ApronBaseListener implements ApronListener {
 
 	@Override public void enterPktOutAllow(ApronParser.PktOutAllowContext ctx) { }
 	@Override public void exitPktOutAllow(ApronParser.PktOutAllowContext ctx) { }
+
+	@Override public void enterFieldM1(ApronParser.FieldM1Context ctx) { }
+	@Override public void exitFieldM1(ApronParser.FieldM1Context ctx) { }
+
+	@Override public void enterFieldM2(ApronParser.FieldM2Context ctx) { }
+	@Override public void exitFieldM2(ApronParser.FieldM2Context ctx) { }
 
 	@Override public void enterFlowTable(ApronParser.FlowTableContext ctx) { }
 	@Override public void exitFlowTable(ApronParser.FlowTableContext ctx) { }
@@ -190,11 +196,11 @@ public class ApronBaseListener implements ApronListener {
 	@Override public void enterPermM(ApronParser.PermMContext ctx) { }
 	@Override public void exitPermM(ApronParser.PermMContext ctx) { }
 
-	@Override public void enterAllDriectLinks(ApronParser.AllDriectLinksContext ctx) { }
-	@Override public void exitAllDriectLinks(ApronParser.AllDriectLinksContext ctx) { }
-
 	@Override public void enterLink_idx(ApronParser.Link_idxContext ctx) { }
 	@Override public void exitLink_idx(ApronParser.Link_idxContext ctx) { }
+
+	@Override public void enterAllDriectLinks(ApronParser.AllDriectLinksContext ctx) { }
+	@Override public void exitAllDriectLinks(ApronParser.AllDriectLinksContext ctx) { }
 
 	@Override public void enterPriorityMax(ApronParser.PriorityMaxContext ctx) { }
 	@Override public void exitPriorityMax(ApronParser.PriorityMaxContext ctx) { }
@@ -217,6 +223,18 @@ public class ApronBaseListener implements ApronListener {
 	@Override public void enterProcessDeny(ApronParser.ProcessDenyContext ctx) { }
 	@Override public void exitProcessDeny(ApronParser.ProcessDenyContext ctx) { }
 
+	@Override public void enterFieldS1(ApronParser.FieldS1Context ctx) { }
+	@Override public void exitFieldS1(ApronParser.FieldS1Context ctx) { }
+
+	@Override public void enterFieldM3(ApronParser.FieldM3Context ctx) { }
+	@Override public void exitFieldM3(ApronParser.FieldM3Context ctx) { }
+
+	@Override public void enterFieldS2(ApronParser.FieldS2Context ctx) { }
+	@Override public void exitFieldS2(ApronParser.FieldS2Context ctx) { }
+
+	@Override public void enterFieldS3(ApronParser.FieldS3Context ctx) { }
+	@Override public void exitFieldS3(ApronParser.FieldS3Context ctx) { }
+
 	@Override public void enterLinkList(ApronParser.LinkListContext ctx) { }
 	@Override public void exitLinkList(ApronParser.LinkListContext ctx) { }
 
@@ -225,6 +243,9 @@ public class ApronBaseListener implements ApronListener {
 
 	@Override public void enterNotificationS(ApronParser.NotificationSContext ctx) { }
 	@Override public void exitNotificationS(ApronParser.NotificationSContext ctx) { }
+
+	@Override public void enterIntFieldPre(ApronParser.IntFieldPreContext ctx) { }
+	@Override public void exitIntFieldPre(ApronParser.IntFieldPreContext ctx) { }
 
 	@Override public void enterField(ApronParser.FieldContext ctx) { }
 	@Override public void exitField(ApronParser.FieldContext ctx) { }
@@ -243,6 +264,9 @@ public class ApronBaseListener implements ApronListener {
 
 	@Override public void enterLinkListM(ApronParser.LinkListMContext ctx) { }
 	@Override public void exitLinkListM(ApronParser.LinkListMContext ctx) { }
+
+	@Override public void enterMacVal(ApronParser.MacValContext ctx) { }
+	@Override public void exitMacVal(ApronParser.MacValContext ctx) { }
 
 	@Override public void enterEveryRule(ParserRuleContext ctx) { }
 	@Override public void exitEveryRule(ParserRuleContext ctx) { }
