@@ -16,6 +16,103 @@ public class ACLRequest{
 	// 1. flow predicate
 	//private enum OFField{TCP_SRC,TCP_DST,VLAN_ID,IP_SRC,IP_DST};
     Flow flow = null;
+    
+
+    public int getFieldMask(String field){
+    	if(field.equals("TCP_SRC")){
+    		return this.getIpSrcMask();
+    	}
+    	else if(field.equals("TCP_DST")){
+    		return this.getIpDstMask();
+    	}
+    	else if(field.equals("VLAN_ID")){
+    		return this.getVlanId();
+    	}
+    	else if(field.equals("IP_SRC")){
+    		return this.getIpSrcMask();
+    	}
+    	else if(field.equals("IP_DST")){
+    		return this.getIpDstMask();
+    	}
+    	return -1;
+    }
+    public int getFieldIP(String field){
+    	// TODO:ARP_OP, ARP_IP_SRC, ARP_IP_DST
+    	if(field.equals("TCP_SRC")){
+    		return this.getTcpSrc();
+    	}
+    	else if(field.equals("TCP_DST")){
+    		return this.getTcpDst();
+    	}
+    	else if(field.equals("VLAN_ID")){
+    		return this.getVlanId();
+    	}
+    	else if(field.equals("IP_SRC")){
+    		return this.getIpSrc();
+    	}
+    	else if(field.equals("IP_DST")){
+    		return this.getIpDst();
+    	}
+    	return -1;
+    }
+    public String getMACField(String field){
+    	// TODO:ARP_MAC_SRC, ARP_MAC_DST, ETH_SRC, ETH_DST
+    	if(field == null)
+    		return "";
+    	
+    	if(field.equals("")){
+    		;
+    	}
+    	return "";
+    }
+    public int getIntField(String field){
+    	// TODO:ICMP_TYPE, ICMP_CODE, SCTP_SRC, SCTP_DST, UDP_SRC, UDP_DST, IN_PORT, PHY_PORT, ETH_TYPE, IP_PROTO
+    	return -1;
+    }
+    
+    
+    public int getTcpSrc(){
+    	if(this.match == null){
+    		return -1;
+    	}
+    	return this.getMatch().getTransportSource();
+    }
+    public int getTcpDst(){
+    	if(this.match == null){
+    		return -1;
+    	}
+    	return this.getMatch().getTransportDestination();
+    }
+    public int getVlanId(){
+    	if(this.match == null){
+    		return -1;
+    	}
+    	return this.getMatch().getDataLayerVirtualLan();
+    }
+    public int getIpSrc(){
+    	if(this.match == null){
+    		return -1;
+    	}
+    	return this.getMatch().getNetworkSource();
+    }
+    public int getIpSrcMask(){
+    	if(this.match == null){
+    		return -1;
+    	}
+    	return ~((1<<this.getMatch().getNetworkSourceMaskLen())-1);
+    }
+    public int getIpDst(){
+    	if(this.match == null){
+    		return -1;
+    	}
+    	return this.getMatch().getNetworkDestination();
+    }
+    public int getIpDstMask(){
+    	if(this.match == null){
+    		return -1;
+    	}
+    	return ~((1<<this.getMatch().getNetworkDestinationMaskLen())-1);
+    }
 	
 	// 2. actions
 	public enum OFActionType{
@@ -113,28 +210,95 @@ public class ACLRequest{
 	
     // 5. virtual table
     FlowTables virtTable;
-    //TODO: add a handler to add/del rules.
     public class Handler{
+    	
+    	//default constructore
+    	public Handler(FlowTables virtTable, Long switchID, String owner, OFType type, Flow src){
+    		this.virtTable = virtTable;
+    		this.switchID = switchID;
+    		this.owner = owner;
+    		this.type = type;
+    		this.srcFlow = src;
+    		this.dstFlow = null;
+    	}
+
+    	public Handler(FlowTables virtTable, Long switchID, String owner, OFType type, Flow src, Flow dst){
+    		this.virtTable = virtTable;
+    		this.switchID = switchID;
+    		this.owner = owner;
+    		this.type = type;
+    		this.srcFlow = src;
+    		this.dstFlow = dst;
+    	}
+    	
     	// stored data
-    	public Flow flow;
     	public OFType type;
+    	public Flow srcFlow;
+    	public Flow dstFlow;
+
+    	public class Storage{
+    		public OFType type;
+    		public Flow flow;
+    		public String owner;
+    		public Storage(OFType type, Flow flow, String owner){
+    			this.type = type;
+    			this.flow = flow;
+    			this.owner = owner;
+    		}
+    	}
     	
     	// ref data
     	FlowTables virtTable;
     	Long switchID;
     	String owner;
     	
-    	//TODO: better way to restore table.
-    	public void update(){
+    	public List<Storage> restore = new ArrayList<Storage>();
+    	
+    	public void updateWithRestore(){
     		if(type == OFType.FLOW_ADD){
-    			virtTable.get(switchID).insert(flow, owner);
+    			if(!virtTable.get(switchID).exists(srcFlow)){
+    				virtTable.get(switchID).insert(srcFlow, owner);
+    				restore.add(new Storage(OFType.FLOW_DEL, srcFlow, owner));
+    			}
     		}
     		else if(type == OFType.FLOW_DEL){
-    			virtTable.get(switchID).remove(flow);
+    			if(virtTable.get(switchID).exists(srcFlow)){
+    				virtTable.get(switchID).remove(srcFlow);
+    				restore.add(new Storage(OFType.FLOW_ADD, srcFlow, owner));
+    			}
+    		}
+    		else if(type == OFType.FLOW_MOD){
+    			if(!virtTable.get(switchID).exists(srcFlow)){
+    				try{
+    					virtTable.get(switchID).modify(srcFlow, dstFlow);
+        				restore.add(new Storage(OFType.FLOW_DEL, dstFlow, owner));
+        				restore.add(new Storage(OFType.FLOW_ADD, srcFlow, virtTable.get(switchID).getOwner(srcFlow)));
+    				}
+    				catch(Exception e){
+    					;
+    				}
+    				
+    			}
     		}
     	}
+
+    	private void updateWithoutRestore(Storage sto){
+    		if(sto.type == OFType.FLOW_ADD){
+    			if(!virtTable.get(switchID).exists(sto.flow)){
+    				virtTable.get(switchID).insert(sto.flow, sto.owner);
+    			}
+    		}
+    		else if(sto.type == OFType.FLOW_DEL){
+    			if(virtTable.get(switchID).exists(sto.flow)){
+    				virtTable.get(switchID).remove(sto.flow);
+    			}
+    		}
+    	}
+    	
     	public void rollback(){
-    		;
+    		for(Storage sto : restore){
+    			this.updateWithoutRestore(sto);
+    		}
     	}
     }
     
@@ -201,8 +365,6 @@ public class ACLRequest{
 	// priority
 	int priority;
 	
-
-    
     public String ownership = new String("");
     
     public Integer rules_per_switch = new Integer(0);
@@ -224,86 +386,6 @@ public class ACLRequest{
     	return match;
     }
     //flow_predicate
-    public int getFieldMask(String field){
-    	if(field.equals("TCP_SRC")){
-    		return this.getIpSrcMask();
-    	}
-    	else if(field.equals("TCP_DST")){
-    		return this.getIpDstMask();
-    	}
-    	else if(field.equals("VLAN_ID")){
-    		return this.getVlanId();
-    	}
-    	else if(field.equals("IP_SRC")){
-    		return this.getIpSrcMask();
-    	}
-    	else if(field.equals("IP_DST")){
-    		return this.getIpDstMask();
-    	}
-    	return -1;
-    }
-    public int getFieldIP(String field){
-    	if(field.equals("TCP_SRC")){
-    		return this.getTcpSrc();
-    	}
-    	else if(field.equals("TCP_DST")){
-    		return this.getTcpDst();
-    	}
-    	else if(field.equals("VLAN_ID")){
-    		return this.getVlanId();
-    	}
-    	else if(field.equals("IP_SRC")){
-    		return this.getIpSrc();
-    	}
-    	else if(field.equals("IP_DST")){
-    		return this.getIpDst();
-    	}
-    	return -1;
-    }
-    public int getTcpSrc(){
-    	if(this.match == null){
-    		return -1;
-    	}
-    	return this.getMatch().getTransportSource();
-    }
-    public int getTcpDst(){
-    	if(this.match == null){
-    		return -1;
-    	}
-    	return this.getMatch().getTransportDestination();
-    }
-    public int getVlanId(){
-    	if(this.match == null){
-    		return -1;
-    	}
-    	return this.getMatch().getDataLayerVirtualLan();
-    }
-    public int getIpSrc(){
-    	if(this.match == null){
-    		return -1;
-    	}
-    	return this.getMatch().getNetworkSource();
-    }
-    public int getIpSrcMask(){
-    	if(this.match == null){
-    		return -1;
-    	}
-    	return ~((1<<this.getMatch().getNetworkSourceMaskLen())-1);
-    }
-    public int getIpDst(){
-    	if(this.match == null){
-    		return -1;
-    	}
-    	return this.getMatch().getNetworkDestination();
-    }
-    public int getIpDstMask(){
-    	if(this.match == null){
-    		return -1;
-    	}
-    	return ~((1<<this.getMatch().getNetworkDestinationMaskLen())-1);
-    }
-    
-    //TODO:Topo
     
     //Ownership
     public void ownFlows(){
@@ -323,8 +405,6 @@ public class ACLRequest{
     	}
     	return -1;
     }
-    
-    //TODO:Flowtable
     
     //action
     public int getActionSize(){
@@ -355,11 +435,9 @@ public class ACLRequest{
     	return false;
     }
 	public void setMatch(OFMatch mt) {
-		// TODO Auto-generated method stub
 		this.match = mt;
 	}
 	public void setActions(List<OFAction> actions) {
-		// TODO Auto-generated method stub
 		this.actions = actions;
 	}
 };

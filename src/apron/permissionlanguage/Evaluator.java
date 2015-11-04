@@ -48,8 +48,10 @@ public class Evaluator{
     		return true;
     	
     	switch(st.Type){
+    	
     	case program:
     		return this.execute(permReq, st.child(0));
+    		
     	case perm_list:
     		for(int i = 0; i < st.childs(); ++i){
     			if(this.execute(permReq, st.child(i)) == false){
@@ -57,6 +59,7 @@ public class Evaluator{
     			}
     		}
     		return true;
+    		
     	case perm:
     		if(st.childs() == 1){
 				return true;
@@ -67,11 +70,13 @@ public class Evaluator{
     		else{
     			return true;
     		}
+    		
     	case perm_name:
     		//if(st._string.equals(permReq.app)){
     		//	return true;
     		//}
     		return true;
+    		
     	case filter_expr:
     		//operation and
     		for(int i = 0; i < st.childs(); ++i){
@@ -89,35 +94,53 @@ public class Evaluator{
     			}
     		}
     		return false;
+    		
     	case filter_factor:
     		if(st.op.equals(Operation.NOT)&&
     				this.execute(permReq, st.child(0))){
     			return false;
     		}
     		return true;
+    		
     	case filter_not_factor:
     		return this.execute(permReq, st.child(0));
+    		
     	case flow_predicate:
-    		//TODO
     		String field = st.child(0)._string;
+    		String mac;
+    		int Int;
     		int ip,mask,ipReq,maskReq;
     		switch(st._int){
     		case 1:
         		ip = stringToIp(st.child(1)._string);
         		mask = -1;
     	    	ipReq = permReq.getFieldIP(field);
+    	    	if(ipReq == -1)
+    	    		return true;
     	    	maskReq = permReq.getFieldMask(field);
         		return (ip&mask) == (ipReq&maskReq);
     		case 2:
         		ip = stringToIp(st.child(1)._string);
         		mask = stringToIp(st.child(2)._string);
     	    	ipReq = permReq.getFieldIP(field);
+    	    	if(ipReq == -1)
+    	    		return true;
     	    	maskReq = permReq.getFieldMask(field);
         		return (ip&mask) == (ipReq&maskReq);
     		case 3:
         		mask = stringToIp(st.child(1)._string);
     	    	maskReq = permReq.getFieldMask(field);
         		return (mask) == (maskReq);
+    		case 4:
+    			mac = permReq.getMACField(field);
+    			if(mac.endsWith(""))
+    				return true;
+        		return (mac) == (st.child(1)._string);
+    		case 5:
+    			Int = permReq.getIntField(field);
+    			if(Int == -1)
+    				return true;
+        		return (Int) == (st.child(1)._int);
         	default:
         		return true;
     		}
@@ -129,26 +152,6 @@ public class Evaluator{
     		else if("BORDER_SWITCHES".equals(st.child(0)._string)){
     			switchSet = topo.getBorderSwitch();
     		}
-    		/*
-    		if("ALL_SWITCHES".equals(st.child(0)._string)){
-    			sws = topo.getSwitchPorts().keySet();
-    		}
-    		else if("BORDER_SWITCHES".equals(st.child(0)._string)){
-    			Map<Long, Set<Short>> switchPorts = topo.getSwitchPorts();
-    			Set<NodePortTuple> switchTuple = new HashSet<NodePortTuple>();
-    			for(Iterator<Long> it = switchPorts.keySet().iterator(); it.hasNext();){
-    				Long sw = (Long) it.next();
-    				for(Iterator<Short> its = switchPorts.get(sw).iterator(); its.hasNext();){
-    					switchTuple.add(new NodePortTuple(sw,(Short)its.next()));
-    				}
-    			}
-    			for(Iterator<NodePortTuple> it = topo.getSwitchPortLinks().keySet().iterator(); it.hasNext();){
-    				switchTuple.remove(it.next());
-    			}
-    			for(Iterator<NodePortTuple> it = switchTuple.iterator(); it.hasNext();){
-    				sws.add(it.next().getNodeId());
-    			}
-    		}*/
     		else if("".equals(st.child(0)._string)){
     			SyntaxTree ch = st.child(0).child(0);
     			switch(ch.Type){
@@ -183,82 +186,84 @@ public class Evaluator{
     			;
     		}   		
     		return true;
+    		
     	case virtual_topo:
+    		// TODO: for future use.
     		return true;
+    		
     	case action:
     		if(st.childs() > 0){
     			return this.execute(permReq, st.child(0));
     		}
-    		//TODO: add more actions to the checking list, try to modify the type of node value from string to OFAction.
     		String actionSingle = "";
     		for(int i = 0; i < permReq.getActionSize(); ++i){
-        		switch(permReq.actions.get(i).getType()){
-        		case MODIFY:
-        			actionSingle = "MODIFY";
-        		case FORWARD:
-        			actionSingle = "FORWARD";
-				default:
-					if(!actionSingle.equals(st._string)){
-						return false;						
-					}
-        		}
+        		actionSingle = permReq.actions.get(i).getType().toString();
+        		if(!actionSingle.equals(st._string)){
+					return false;						
+				}
     		}
     		return true;
+    		
     	case field_list:
-    		//TODO: add more fields to the checking list, try to modify the type of node value from string to field.
     		
     		String actionModify = "";
     		for(int i = 0; i < permReq.getActionSize(); ++i){
-    			switch(permReq.actions.get(i).getType()){
-    			case SET_TP_SRC:
-    				actionModify = "TCP_SRC";
-    			case SET_TP_DST:
-    				actionModify = "TCP_DST";
-    			case SET_NW_SRC:
-    				actionModify = "IP_SRC";
-    			case SET_NW_DST:
-    				actionModify = "IP_DST";
-				default:
-					Boolean isInAction = false;
-					for(int j = 0; j < st.childs(); ++j){
-						if(st.child(j)._string.equals(actionModify)){
-							isInAction = true;
-							break;
-						}
+    			actionModify = permReq.actions.get(i).getType().toString();
+				Boolean isInAction = false;
+				for(int j = 0; j < st.childs(); ++j){
+					if(st.child(j)._string.equals(actionModify)){
+						isInAction = true;
+						break;
 					}
-					if(isInAction)
-						continue;
-					return false;
-    			}
+				}
+				if(isInAction)
+					continue;
+				return false;
     		}
     		return true;
+    		
     	case ownership:
-    		return permReq.ownership.equals(st._string);
+    		if(st._string.equals("OTHERS_FLOWS")){
+    			return permReq.checkOtherRule();
+    		}
+    		else if(st._string.equals("OWN_FLOWS")){
+    			return permReq.checkOwnRule();
+    		}
+    		else{
+    			return permReq.checkAllRule();
+    		}
+    	
     	case max_priority:
     		return permReq.getPriority() <= st._int;
     	case min_priority:
     		return permReq.getPriority() >= st._int;
+    	
     	case RULE_COUNT_PER_SWITCH:
-    		//TODO
-    		break;
+    		return permReq.checkRulePercentage(st.child(0)._float);
+    		
     	case SIZE_PERCENTAGE_PER_SWITCH:
-    		//TODO
-    		break;
+    		return permReq.checkRuleCount(st.child(0)._int);
+
     	case notification:
     		return permReq.checkNotification(st._string);
+    		
     	case statistics:
     		return permReq.checkStatistics(st._string);
+    		
     	case pktout:
     		return !(permReq.isPktOut() && st._int == 0);
+    		
     	case network:
     		return permReq.network<=st._int;
+    		
     	case filesystem:
     		return permReq.filesystem<=st._int;
+    		
     	case processruntime:
     		return permReq.processruntime<=st._int;
+    		
 		default:
 			return true;
     	}
-		return true;
     }
 }

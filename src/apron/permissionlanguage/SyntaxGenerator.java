@@ -95,6 +95,7 @@ public class SyntaxGenerator extends ApronBaseVisitor <SyntaxTree> implements Ap
     }
 
     public SyntaxTree visitFieldVal(ApronParser.FieldValContext ctx){
+    	// normal fields
     	SyntaxTree ret = new SyntaxTree(NodeType.flow_predicate);
     	ret.data(1);
         ret.add(visit(ctx.field()));
@@ -102,6 +103,7 @@ public class SyntaxGenerator extends ApronBaseVisitor <SyntaxTree> implements Ap
         return ret;
     }
     public SyntaxTree visitFieldMask(ApronParser.FieldMaskContext ctx){
+    	// normal fields with mask
     	SyntaxTree ret = new SyntaxTree(NodeType.flow_predicate);
     	ret.data(2);
         ret.add(visit(ctx.field()));
@@ -110,19 +112,29 @@ public class SyntaxGenerator extends ApronBaseVisitor <SyntaxTree> implements Ap
         return ret;
     }
     public SyntaxTree visitWildcard(ApronParser.WildcardContext ctx){
+    	// wildcard fileds
     	SyntaxTree ret = new SyntaxTree(NodeType.flow_predicate);
     	ret.data(3);
         ret.add(visit(ctx.field()));
         ret.add(visit(ctx.val()));
         return ret;
     }
-
-	public SyntaxTree visitMacPre(ApronParser.MacFieldPreContext ctx){
-    	SyntaxTree ret = new SyntaxTree(NodeType.flow_predicate);
+	public SyntaxTree visitMacFieldPre(ApronParser.MacFieldPreContext ctx){
+    	// mac related fields
+		SyntaxTree ret = new SyntaxTree(NodeType.flow_predicate);
     	ret.data(4);
-		ret.add(visitChildren(ctx));
+    	ret.add(ctx.MACFields().getText());
+		ret.add(visit(ctx.mac()));
 		return ret;
-	}	
+	}
+	public SyntaxTree visitIntFieldPre(ApronParser.IntFieldPreContext ctx){
+    	// int related fields
+		SyntaxTree ret = new SyntaxTree(NodeType.flow_predicate);
+    	ret.data(5);
+    	ret.add(ctx.INTFields().getText());
+		ret.add(visit(ctx.INT()));
+		return ret;
+	}
 	public SyntaxTree visitMacVal(ApronParser.MacValContext ctx){
     	SyntaxTree ret = new SyntaxTree(NodeType.value);
     	ret.data(ctx.getText());
@@ -294,15 +306,54 @@ public class SyntaxGenerator extends ApronBaseVisitor <SyntaxTree> implements Ap
     }
     public SyntaxTree visitModifyField(ApronParser.ModifyFieldContext ctx){
     	SyntaxTree ret = new SyntaxTree(NodeType.action);
+
+    	SyntaxTree field;
+    	SyntaxTree fields = visit(ctx.field_list());
+    	for( field = fields; field.children.size() > 1; field = field.child(1)){
+    		ret.add(field.child(0));
+    	}
+        return ret;
+    }
+    public SyntaxTree visitActionOp(ApronParser.ActionOpContext ctx){
+    	SyntaxTree ret = new SyntaxTree(NodeType.action);
+    	ret.add(ctx.OperateAction().getText());
+        return ret;
+    }
+    public SyntaxTree visitFieldS1(ApronParser.FieldS1Context ctx){
+        return visit(ctx.field());
+    }
+    public SyntaxTree visitFieldS2(ApronParser.FieldS2Context ctx){
+    	SyntaxTree ret = new SyntaxTree(NodeType.field);
+    	ret.add(ctx.MACFields().getText());
+        return ret;
+    }
+    public SyntaxTree visitFieldS3(ApronParser.FieldS3Context ctx){
+    	SyntaxTree ret = new SyntaxTree(NodeType.field);
+    	ret.add(ctx.INTFields().getText());
+    	return ret;
+    }
+    public SyntaxTree visitFieldM1(ApronParser.FieldM1Context ctx){
+    	SyntaxTree ret = new SyntaxTree(NodeType.field_list);
+    	ret.add(visit(ctx.field()));
     	ret.add(visit(ctx.field_list()));
         return ret;
     }
-    public SyntaxTree visitFieldS(ApronParser.FieldS1Context ctx){
-        return visit(ctx.field());
-    }
-    public SyntaxTree visitFieldM(ApronParser.FieldM1Context ctx){
+    public SyntaxTree visitFieldM2(ApronParser.FieldM2Context ctx){
     	SyntaxTree ret = new SyntaxTree(NodeType.field_list);
-    	ret.add(visit(ctx.field()));
+    	
+    	SyntaxTree field = new SyntaxTree(NodeType.field);
+    	field.add(ctx.MACFields().getText());
+    	
+    	ret.add(field);
+    	ret.add(visit(ctx.field_list()));
+        return ret;
+    }
+    public SyntaxTree visitFieldM3(ApronParser.FieldM3Context ctx){
+    	SyntaxTree ret = new SyntaxTree(NodeType.field_list);
+    	
+    	SyntaxTree field = new SyntaxTree(NodeType.field);
+    	field.add(ctx.INTFields().getText());
+    	
     	ret.add(visit(ctx.field_list()));
         return ret;
     }

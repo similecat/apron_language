@@ -17,6 +17,9 @@ public class Table {
 	public void remove(Flow flow){
 		getTable().remove(flow);
 	}
+	public boolean exists(Flow flow){
+		return getTable().containsKey(flow);
+	}
 	public void modify(Flow srcFlow, Flow dstFlow){
 		String owner = (String) getTable().get(srcFlow);
 		this.insert(dstFlow, owner);
