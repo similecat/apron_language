@@ -5,14 +5,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 import apron.acl.ACLRequest;
-import apron.acl.ITopologyManager;
 import apron.syntaxtree.Operation;
 import apron.syntaxtree.SyntaxTree;
 
 public class Evaluator{
 	public SyntaxTree syn = null;
     //public ACLRequest permReq = new ACLRequest();
-    public ITopologyManager topo;
     
 
     public Evaluator(){
@@ -38,10 +36,6 @@ public class Evaluator{
         ret |= (Integer.parseInt(ipArr[3]) & 0xFF)<<0;
         return ret;
     }
-	public void setTopologyManager(ITopologyManager topo)
-	{
-		this.topo = topo;
-	}
     public boolean execute(ACLRequest permReq, SyntaxTree st){
     	
     	if(st == null)
@@ -72,10 +66,10 @@ public class Evaluator{
     		}
     		
     	case perm_name:
-    		//if(st._string.equals(permReq.app)){
-    		//	return true;
-    		//}
-    		return true;
+    		if(st._string.equals(permReq.getApp())){
+    			return true;
+    		}
+    		return false;
     		
     	case filter_expr:
     		//operation and
@@ -107,14 +101,14 @@ public class Evaluator{
     		
     	case flow_predicate:
     		String field = st.child(0)._string;
-    		String mac;
-    		int Int;
-    		int ip,mask,ipReq,maskReq;
+    		long mac;
+    		long Int;
+    		long ip,mask,ipReq,maskReq;
     		switch(st._int){
     		case 1:
         		ip = stringToIp(st.child(1)._string);
         		mask = -1;
-    	    	ipReq = permReq.getFieldIP(field);
+    	    	ipReq = permReq.getFieldValue(field);
     	    	if(ipReq == -1)
     	    		return true;
     	    	maskReq = permReq.getFieldMask(field);
@@ -122,7 +116,7 @@ public class Evaluator{
     		case 2:
         		ip = stringToIp(st.child(1)._string);
         		mask = stringToIp(st.child(2)._string);
-    	    	ipReq = permReq.getFieldIP(field);
+    	    	ipReq = permReq.getFieldValue(field);
     	    	if(ipReq == -1)
     	    		return true;
     	    	maskReq = permReq.getFieldMask(field);
@@ -132,12 +126,10 @@ public class Evaluator{
     	    	maskReq = permReq.getFieldMask(field);
         		return (mask) == (maskReq);
     		case 4:
-    			mac = permReq.getMACField(field);
-    			if(mac.endsWith(""))
-    				return true;
-        		return (mac) == (st.child(1)._string);
+    			mac = permReq.mac2long(st.child(1)._string);
+        		return (mac) == permReq.getFieldValue(field);
     		case 5:
-    			Int = permReq.getIntField(field);
+    			Int = permReq.getFieldValue(field);
     			if(Int == -1)
     				return true;
         		return (Int) == (st.child(1)._int);
@@ -145,12 +137,14 @@ public class Evaluator{
         		return true;
     		}
     	case physical_topo:
+    		if(permReq.getTopo() == null)
+    			return true;
     		Set <Long> switchSet = new HashSet<Long>();
     		if("ALL_SWITCHES".equals(st.child(0)._string)){
-    			switchSet = topo.getAllSwitch();
+    			switchSet = permReq.getTopo().getAllSwitch();
     		}
     		else if("BORDER_SWITCHES".equals(st.child(0)._string)){
-    			switchSet = topo.getBorderSwitch();
+    			switchSet = permReq.getTopo().getBorderSwitch();
     		}
     		else if("".equals(st.child(0)._string)){
     			SyntaxTree ch = st.child(0).child(0);
@@ -167,12 +161,12 @@ public class Evaluator{
 					break;
     			}
     		}
-    		long swID = permReq.switchID;
-    		short port = permReq.getMatch().getInputPort();
+    		long swID = permReq.getSwitchID();
+    		long port = permReq.getMatch().getInputPort();
     		if(!switchSet.contains(swID)){
     			return false;
     		}
-    		if(!topo.getSwitchPorts(swID).contains(port)){
+    		if(!permReq.getTopo().getSwitchPorts(swID).contains(port)){
     			return false;
     		}
 

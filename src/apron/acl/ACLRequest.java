@@ -5,55 +5,214 @@ import java.util.List;
 
 import apron.data.Flow;
 import apron.data.FlowTables;
+import apron.data.OFActionType;
 import apron.data.OFMatch;
+import apron.data.OFType;
 
 public class ACLRequest{
 
-	// 0. App name
-	// the identify of each API caller.
-    public String app = new String("");
+	// 0. App name, switch id
+	
+	// 0.1 the identify of each API caller.
+    private String app = new String("");
+    /**
+	 * @return the app
+	 */
+	public String getApp() {
+		return app;
+	}
+	/**
+	 * @param app the app to set
+	 */
+	public void setApp(String app) {
+		this.app = app;
+	}
+
+	// 0.2 switch id;
+	private long switchID;
+	/**
+	 * @return the switchID
+	 */
+	public long getSwitchID() {
+		return switchID;
+	}
+	/**
+	 * @param switchID the switchID to set
+	 */
+	public void setSwitchID(long switchID) {
+		this.switchID = switchID;
+	}
+
+	// 0.3 type of the detail message: packet_out, flow_mod
+	private OFType type;
     
+    /**
+	 * @return the type
+	 */
+	public OFType getType() {
+		return type;
+	}
+	/**
+	 * @param type the type to set
+	 */
+	public void setType(OFType type) {
+		this.type = type;
+	}
+		
 	// 1. flow predicate
-	//private enum OFField{TCP_SRC,TCP_DST,VLAN_ID,IP_SRC,IP_DST};
-    Flow flow = null;
+	// private enum OFField{TCP_SRC,TCP_DST,VLAN_ID,IP_SRC,IP_DST};
+    private Flow flow = new Flow();
     
 
-    public int getFieldMask(String field){
-    	if(field.equals("TCP_SRC")){
-    		return this.getIpSrcMask();
-    	}
-    	else if(field.equals("TCP_DST")){
-    		return this.getIpDstMask();
-    	}
-    	else if(field.equals("VLAN_ID")){
-    		return this.getVlanId();
-    	}
-    	else if(field.equals("IP_SRC")){
-    		return this.getIpSrcMask();
+	public void setMatch(OFMatch match) {
+		this.flow.setMatch(match);
+	}
+    public OFMatch getMatch(){
+    	return this.flow.getMatch();
+    }
+    public long getFieldMask(String field){
+    	if(field.equals("IP_SRC")){
+    		return this.getMatch().getIpSrcMask();
     	}
     	else if(field.equals("IP_DST")){
-    		return this.getIpDstMask();
+    		return this.getMatch().getIpDstMask();
     	}
     	return -1;
     }
-    public int getFieldIP(String field){
-    	// TODO:ARP_OP, ARP_IP_SRC, ARP_IP_DST
+    public long getFieldValue(String field){
     	if(field.equals("TCP_SRC")){
-    		return this.getTcpSrc();
+    		return this.getMatch().getTcpSrcPort();
     	}
     	else if(field.equals("TCP_DST")){
-    		return this.getTcpDst();
+    		return this.getMatch().getTcpDstPort();
     	}
     	else if(field.equals("VLAN_ID")){
-    		return this.getVlanId();
+    		return this.getMatch().getVlanId();
     	}
     	else if(field.equals("IP_SRC")){
-    		return this.getIpSrc();
+    		return this.getMatch().getIpSrc();
     	}
     	else if(field.equals("IP_DST")){
-    		return this.getIpDst();
+    		return this.getMatch().getIpDst();
+    	}
+    	else if(field.equals("ARP_OP")){
+    		return this.getMatch().getArpOp();
+    	}
+    	else if(field.equals("ARP_IP_SRC")){
+    		return this.getMatch().getArpIpSrc();
+    	}
+    	else if(field.equals("ARP_IP_DST")){
+    		return this.getMatch().getArpIpDst();
+    	}
+    	else if(field.equals("ARP_MAC_SRC")){
+    		return this.getMatch().getArpEthSrc();
+    	}
+    	else if(field.equals("ARP_MAC_DST")){
+    		return this.getMatch().getArpEthDst();
+    	}
+    	else if(field.equals("ICMP_TYPE")){
+    		return this.getMatch().getIcmpType();
+    	}
+    	else if(field.equals("ICMP_CODE")){
+    		return this.getMatch().getIcmpCode();
+    	}
+    	else if(field.equals("SCTP_SRC")){
+    		return this.getMatch().getSctpSrcPort();
+    	}
+    	else if(field.equals("SCTP_DST")){
+    		return this.getMatch().getSctpDstPort();
+    	}
+    	else if(field.equals("UDP_SRC")){
+    		return this.getMatch().getUdpSrcPort();
+    	}
+    	else if(field.equals("UDP_DST")){
+    		return this.getMatch().getUdpDstPort();
+    	}
+    	else if(field.equals("IP_PROTO")){
+    		return this.getMatch().getIpProto();
+    	}
+    	else if(field.equals("PHY_PORT")){
+    		return this.getMatch().getPhyPort();
+    	}
+    	else if(field.equals("ETH_TYPE")){
+    		return this.getMatch().getEthType();
+    	}
+    	else if(field.equals("IN_PORT")){
+    		return this.getMatch().getInputPort();
+    	}
+    	else if(field.equals("ETH_SRC")){
+    		return this.getMatch().getEthSrc();
+    	}
+    	else if(field.equals("ETH_DST")){
+    		return this.getMatch().getEthDst();
     	}
     	return -1;
+    }
+    private long hex2longSingle(char c){
+    	switch(c){
+    	case '0':
+    		return 0;
+    	case '1':
+    		return 1;
+    	case '2':
+    		return 2;
+    	case '3':
+    		return 3;
+    	case '4':
+    		return 4;
+    	case '5':
+    		return 5;
+    	case '6':
+    		return 6;
+    	case '7':
+    		return 7;
+    	case '8':
+    		return 8;
+    	case '9':
+    		return 9;
+    	case 'a':
+    		return 10;
+    	case 'A':
+    		return 10;
+    	case 'b':
+    		return 11;
+    	case 'B':
+    		return 11;
+    	case 'c':
+    		return 12;
+    	case 'C':
+    		return 12;
+    	case 'd':
+    		return 13;
+    	case 'D':
+    		return 13;
+    	case 'e':
+    		return 14;
+    	case 'E':
+    		return 14;
+    	case 'f':
+    		return 15;
+    	case 'F':
+    		return 15;
+    	}
+    	return 0;
+    }
+    private long hex2long(String hex){
+    	long ret = 0;
+    	for(int i = 0; i < hex.length(); ++i){
+    		ret <<= 4;
+    		ret += hex2longSingle(hex.charAt(i));
+    	}
+    	return ret;
+    }
+    public long mac2long(String mac){
+    	long ret = 0;
+    	String [] macs = mac.split(":");
+    	for(int i = 0; i < macs.length; ++i){
+    		ret <<= 8;
+    		ret += hex2long(macs[i]);
+    	}
+    	return ret;
     }
     public String getMACField(String field){
     	// TODO:ARP_MAC_SRC, ARP_MAC_DST, ETH_SRC, ETH_DST
@@ -69,79 +228,80 @@ public class ACLRequest{
     	// TODO:ICMP_TYPE, ICMP_CODE, SCTP_SRC, SCTP_DST, UDP_SRC, UDP_DST, IN_PORT, PHY_PORT, ETH_TYPE, IP_PROTO
     	return -1;
     }
-    
-    
-    public int getTcpSrc(){
-    	if(this.match == null){
-    		return -1;
-    	}
-    	return this.getMatch().getTransportSource();
-    }
-    public int getTcpDst(){
-    	if(this.match == null){
-    		return -1;
-    	}
-    	return this.getMatch().getTransportDestination();
-    }
-    public int getVlanId(){
-    	if(this.match == null){
-    		return -1;
-    	}
-    	return this.getMatch().getDataLayerVirtualLan();
-    }
-    public int getIpSrc(){
-    	if(this.match == null){
-    		return -1;
-    	}
-    	return this.getMatch().getNetworkSource();
-    }
-    public int getIpSrcMask(){
-    	if(this.match == null){
-    		return -1;
-    	}
-    	return ~((1<<this.getMatch().getNetworkSourceMaskLen())-1);
-    }
-    public int getIpDst(){
-    	if(this.match == null){
-    		return -1;
-    	}
-    	return this.getMatch().getNetworkDestination();
-    }
-    public int getIpDstMask(){
-    	if(this.match == null){
-    		return -1;
-    	}
-    	return ~((1<<this.getMatch().getNetworkDestinationMaskLen())-1);
-    }
 	
 	// 2. actions
-	public enum OFActionType{
-		//forwarding related
-		Drop,FORWARD,MODIFY,SET_TP_SRC,SET_TP_DST,SET_NW_SRC,SET_NW_DST
-		//TTL related
-		,COPY_TTL_OUT, COPY_TTL_IN
-		//MPLS related
-		,SET_MPLS_TTL, DEC_MPLS_TTL, PUSH_MPLS, POP_MPLS
-		//VLAN related
-		,PUSH_VLAN,POP_VLAN
-		// Others
-		,SET_QUEUE,GROUP,SET_NW_TTL,DEC_NW_TTL,PUSH_PBB,POP_PBB,EXPERIMENTER
-		};
 	public class OFAction
 	{
 		private OFActionType type;
+		private long value;
+		public OFAction(OFActionType action) {
+			this.type = action;
+		}
+		public OFAction(OFActionType action, long value) {
+			this.type = action;
+			this.setValue(value);
+		}
 		//public List<OFField> fields;
 		public OFActionType getType()
 		{
 			return type;
 		}
+		/**
+		 * @return the value
+		 */
+		public long getValue() {
+			return value;
+		}
+		/**
+		 * @param value the value to set
+		 */
+		public void setValue(long value) {
+			this.value = value;
+		}
 	}
 
     public List<OFAction> actions = new ArrayList<OFAction>();
+
+    public void addAction(OFActionType action){
+    	this.actions.add(new OFAction(action));
+    }
+    
+    public void addAction(OFActionType action, long value){
+    	this.actions.add(new OFAction(action, value));
+    }
+    
+    public int getActionSize(){
+    	return actions.size();
+    }
 	
 	// 3. Notification Level
 	private enum OFNotificationLevel{DEFAULT,EVENT_INTERCEPTION, MODIFY_EVENT_ORDER};
-    public OFNotificationLevel notification;
+    private OFNotificationLevel notification;
+    
+    public boolean checkNotification(String s){
+    	OFNotificationLevel outer = OFNotificationLevel.DEFAULT;
+    	if(s.equals("EVENT_INTERCEPTION")){
+    		outer = OFNotificationLevel.EVENT_INTERCEPTION;
+    	}
+    	else if(s.equals("MODIFY_EVENT_ORDER")){
+    		outer = OFNotificationLevel.MODIFY_EVENT_ORDER;
+    	}
+    	return outer == this.notification;
+    }
+
+	/**
+	 * Set the notification level to Intercept events.
+	 */
+    public void eventInterception(){
+    	this.notification = OFNotificationLevel.EVENT_INTERCEPTION;
+    }
+
+	/**
+	 * Set the notification level to modify events' order.
+	 */
+    public void modifyEventOrder(){
+    	this.notification = OFNotificationLevel.MODIFY_EVENT_ORDER;
+    }
 	
     // 4. statistics level
 	/*
@@ -154,22 +314,38 @@ public class ACLRequest{
 	 * SWITCH_LEVEL <= other
 	 */
 	
-	private enum OFStatisticsLevel{FLOW_LEVEL,PORT_LEVEL,SWITCH_LEVEL};
+	private enum OFStatisticsLevel{FLOW_LEVEL, PORT_LEVEL, SWITCH_LEVEL};
 	
     public OFStatisticsLevel statistics = null;
+	
+    /**
+	 * @author Jason Yang
+	 * Set the statistics level to flow.
+	 */
     public void setStatisticsLevelFlow()
     {
     	// set the value of statistics as FLOW_LEVEL.
     	statistics = OFStatisticsLevel.FLOW_LEVEL;
     }
+    
+    /**
+	 * @author Jason Yang
+	 * Set the statistics level to Port.
+	 */
     public void setStatisticsLevelPort()
     {
     	statistics = OFStatisticsLevel.PORT_LEVEL;
     }
+    
+    /**
+	 * @author Jason Yang
+	 * Set the statistics level to switch.
+	 */
     public void setStatisticsLevelSwitch()
     {
     	statistics = OFStatisticsLevel.SWITCH_LEVEL;
     }
+    
     public boolean isFlowLevel()
     {
     	if( statistics == null || statistics != OFStatisticsLevel.FLOW_LEVEL)
@@ -209,10 +385,28 @@ public class ACLRequest{
     }
 	
     // 5. virtual table
-    FlowTables virtTable;
+    private FlowTables virtTable;
+    /**
+	 * @return the virtTable
+	 */
+	public FlowTables getVirtTable() {
+		return virtTable;
+	}
+	/**
+	 * @param virtTable the virtTable to set
+	 */
+	public void setVirtTable(FlowTables virtTable) {
+		this.virtTable = virtTable;
+	}
+	public Handler createHandler(){
+    	return new Handler(virtTable,switchID,this.app,this.type,this.flow);
+    }
+    public Handler createHandler(Flow dstFlow){
+    	return new Handler(virtTable,switchID,this.app,this.type,this.flow,dstFlow);
+    }
     public class Handler{
     	
-    	//default constructore
+    	//default construct
     	public Handler(FlowTables virtTable, Long switchID, String owner, OFType type, Flow src){
     		this.virtTable = virtTable;
     		this.switchID = switchID;
@@ -302,7 +496,19 @@ public class ACLRequest{
     	}
     }
     
-    // 6. flow table permission
+    // 6. ownership permission
+	public String ownership = new String("");
+	
+    public void ownFlows(){
+    	this.ownership = "OWN_FLOWS";
+    }
+    public void othersFlows(){
+    	this.ownership = "OTHERS_FLOWS";
+    }
+    public void allFlows(){
+    	this.ownership = "ALL_FLOWS";
+    }
+    
     public boolean checkOwnRule(){
     	// a. check if this request access flows.
     	// it should be only del/modify.
@@ -349,95 +555,53 @@ public class ACLRequest{
     	return true;
     }
     
-    
-	// OF
-	public enum OFType{FLOW_MOD, FLOW_ADD, FLOW_DEL, PACKET_OUT};
-	
-	// switch id;
-	public Long switchID;
-	
-	// type of the detail message: packet_out, flow_mod
-	OFType type;
-	
-	// details of the flow match: ip, port, mask, vlan.
-	OFMatch match;
-	
-	// priority
-	int priority;
-	
-    public String ownership = new String("");
-    
-    public Integer rules_per_switch = new Integer(0);
-    public Float size_per_switch = new Float(0.0);
-    
-    
-    
-    public int network = 0;
-    public int filesystem = 0;
-    public int processruntime = 0;
+	// 8.Priority
+	private long priority;
 
-    public void APP(String s){
-    	this.app = s;
-    }
-    public OFType getType(){
-    	return type;
-    }
-    public OFMatch getMatch(){
-    	return match;
-    }
-    //flow_predicate
-    
-    //Ownership
-    public void ownFlows(){
-    	this.ownership = "OWN_FLOWS";
-    }
-    public void othersFlows(){
-    	this.ownership = "OTHERS_FLOWS";
-    }
-    public void allFlows(){
-    	this.ownership = "ALL_FLOWS";
-    }
-    
-    // Max priority
-    public int getPriority(){
-    	if(match != null){
-    		return this.priority;
-    	}
-    	return -1;
-    }
-    
-    //action
-    public int getActionSize(){
-    	return actions.size();
-    }
-    //Notification
-    public boolean checkNotification(String s){
-    	OFNotificationLevel outer = OFNotificationLevel.DEFAULT;
-    	if(s.equals("EVENT_INTERCEPTION")){
-    		outer = OFNotificationLevel.EVENT_INTERCEPTION;
-    	}
-    	else if(s.equals("MODIFY_EVENT_ORDER")){
-    		outer = OFNotificationLevel.MODIFY_EVENT_ORDER;
-    	}
-    	return outer == this.notification;
-    }
-    public void eventInterception(){
-    	this.notification = OFNotificationLevel.EVENT_INTERCEPTION;
-    }
-    public void modifyEventOrder(){
-    	this.notification = OFNotificationLevel.MODIFY_EVENT_ORDER;
-    }
-    //pkt_out
+	/**
+	 * @return the priority
+	 */
+	public long getPriority() {
+		if(this.getMatch() != null)
+			return priority;
+		return -1;
+	}
+	/**
+	 * @param priority the priority to set
+	 */
+	public void setPriority(long priority) {
+		this.priority = priority;
+	}
+	
+	// 9.pkt_out
     public boolean isPktOut(){
-    	if(this.match != null && this.getType().equals(OFType.PACKET_OUT)){
+    	if(this.getType().equals(OFType.PACKET_OUT)){
     		return true;
     	}
     	return false;
     }
-	public void setMatch(OFMatch mt) {
-		this.match = mt;
-	}
 	public void setActions(List<OFAction> actions) {
 		this.actions = actions;
 	}
+    
+	// 10. other
+	private ITopologyManager topo = null;
+	
+    /**
+	 * @return the topo
+	 */
+	public ITopologyManager getTopo() {
+		return topo;
+	}
+	/**
+	 * @param topo the topo to set
+	 */
+	public void setTopo(ITopologyManager topo) {
+		this.topo = topo;
+	}
+
+	public int network = 0;
+    public int filesystem = 0;
+    public int processruntime = 0;
+    
 };
