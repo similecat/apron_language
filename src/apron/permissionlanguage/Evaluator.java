@@ -27,7 +27,7 @@ public class Evaluator{
     	;
     	return this.execute(permReq);
     }
-	public int stringToIp(String ipAddr){
+	public static int stringToIp(String ipAddr){
     	int ret = 0;
     	String[] ipArr = ipAddr.split("\\.");
         ret |= (Integer.parseInt(ipArr[0]) & 0xFF)<<24;
@@ -101,38 +101,54 @@ public class Evaluator{
     		
     	case flow_predicate:
     		String field = st.child(0)._string;
-    		long mac;
-    		long Int;
-    		long ip,mask,ipReq,maskReq;
+    		long mac,macReq;
+    		long Int,IntReq;
+    		long value,mask,valueReq,maskReq;
     		switch(st._int){
     		case 1:
-        		ip = stringToIp(st.child(1)._string);
+    			if(st.child(1)._string != null && st.child(1)._string.length() > 0){
+            		value = stringToIp(st.child(1)._string);
+    			}
+    			else{
+    				value = st.child(1)._int;
+    			}
         		mask = -1;
-    	    	ipReq = permReq.getFieldValue(field);
-    	    	if(ipReq == -1)
+    	    	valueReq = permReq.getFieldValue(field);
+    	    	if(valueReq == -1)
     	    		return true;
     	    	maskReq = permReq.getFieldMask(field);
-        		return (ip&mask) == (ipReq&maskReq);
+    	    	if(maskReq == -1){
+    	    		return value == valueReq;
+    	    	}
+        		return (value&mask) == (valueReq&maskReq);
     		case 2:
-        		ip = stringToIp(st.child(1)._string);
+        		value = stringToIp(st.child(1)._string);
         		mask = stringToIp(st.child(2)._string);
-    	    	ipReq = permReq.getFieldValue(field);
-    	    	if(ipReq == -1)
+    	    	valueReq = permReq.getFieldValue(field);
+    	    	if(valueReq == -1)
     	    		return true;
     	    	maskReq = permReq.getFieldMask(field);
-        		return (ip&mask) == (ipReq&maskReq);
+    	    	if(maskReq == -1)
+    	    		return true;
+        		return (value&mask) == (valueReq&maskReq);
     		case 3:
         		mask = stringToIp(st.child(1)._string);
     	    	maskReq = permReq.getFieldMask(field);
+    	    	if(maskReq == -1)
+    	    		return true;
         		return (mask) == (maskReq);
     		case 4:
     			mac = permReq.mac2long(st.child(1)._string);
-        		return (mac) == permReq.getFieldValue(field);
-    		case 5:
-    			Int = permReq.getFieldValue(field);
-    			if(Int == -1)
+    			macReq = permReq.getFieldValue(field);
+    			if(macReq == -1)
     				return true;
-        		return (Int) == (st.child(1)._int);
+        		return (mac) == macReq;
+    		case 5:
+    			Int = (st.child(1)._int);
+    			IntReq = permReq.getFieldValue(field);
+    			if(IntReq == -1)
+    				return true;
+        		return (Int) == (IntReq);
         	default:
         		return true;
     		}
@@ -186,7 +202,8 @@ public class Evaluator{
     		return true;
     		
     	case action:
-    		if(st.childs() > 0){
+    		// TODO: modify as an action set operation.
+    		if(st.childs() > 1){
     			return this.execute(permReq, st.child(0));
     		}
     		String actionSingle = "";
@@ -233,10 +250,10 @@ public class Evaluator{
     		return permReq.getPriority() >= st._int;
     	
     	case RULE_COUNT_PER_SWITCH:
-    		return permReq.checkRulePercentage(st.child(0)._float);
+    		return permReq.checkRuleCount(st._int);
     		
     	case SIZE_PERCENTAGE_PER_SWITCH:
-    		return permReq.checkRuleCount(st.child(0)._int);
+    		return permReq.checkRulePercentage(st._float);
 
     	case notification:
     		return permReq.checkNotification(st._string);

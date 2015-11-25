@@ -44,7 +44,7 @@ public class ACLRequest{
 	}
 
 	// 0.3 type of the detail message: packet_out, flow_mod
-	private OFType type;
+	private OFType type = OFType.OTHER;
     
     /**
 	 * @return the type
@@ -80,6 +80,8 @@ public class ACLRequest{
     	return -1;
     }
     public long getFieldValue(String field){
+    	if(this.getMatch() == null)
+    		return -1;
     	if(field.equals("TCP_SRC")){
     		return this.getMatch().getTcpSrcPort();
     	}
@@ -148,7 +150,7 @@ public class ACLRequest{
     	}
     	return -1;
     }
-    private long hex2longSingle(char c){
+    private static long hex2longSingle(char c){
     	switch(c){
     	case '0':
     		return 0;
@@ -197,7 +199,7 @@ public class ACLRequest{
     	}
     	return 0;
     }
-    private long hex2long(String hex){
+    private static long hex2long(String hex){
     	long ret = 0;
     	for(int i = 0; i < hex.length(); ++i){
     		ret <<= 4;
@@ -205,7 +207,7 @@ public class ACLRequest{
     	}
     	return ret;
     }
-    public long mac2long(String mac){
+    public static long mac2long(String mac){
     	long ret = 0;
     	String [] macs = mac.split(":");
     	for(int i = 0; i < macs.length; ++i){
@@ -279,6 +281,8 @@ public class ACLRequest{
     private OFNotificationLevel notification;
     
     public boolean checkNotification(String s){
+    	if(this.notification == null)
+    		return true;
     	OFNotificationLevel outer = OFNotificationLevel.DEFAULT;
     	if(s.equals("EVENT_INTERCEPTION")){
     		outer = OFNotificationLevel.EVENT_INTERCEPTION;
@@ -370,6 +374,8 @@ public class ACLRequest{
     }
     
     public boolean checkStatistics(String stats){
+    	if(this.statistics == null)
+    		return true;
     	if(stats.equals("FLOW_LEVEL")){
     		return isStatisticsTrue(OFStatisticsLevel.FLOW_LEVEL);
     	}
@@ -512,12 +518,14 @@ public class ACLRequest{
     public boolean checkOwnRule(){
     	// a. check if this request access flows.
     	// it should be only del/modify.
-    	if(this.flow == null){
+    	if(this.type != OFType.FLOW_DEL && this.type != OFType.FLOW_MOD)
+    		return true;
+    	if(this.flow == null || this.virtTable == null){
     		// TODO: remove the scenario of add.
     		return true;
     	}
     	// b. check the owner.
-    	if(virtTable.get(switchID).getOwner(this.flow).equals(app)){
+    	if(virtTable.get(switchID) != null && virtTable.get(switchID).getOwner(this.flow).equals(app)){
     		return true;
     	}
     	return false;
@@ -525,12 +533,14 @@ public class ACLRequest{
 
     public boolean checkOtherRule(){
     	// a. check if this request access flows.
-    	if(this.flow == null){
+    	if(this.type != OFType.FLOW_DEL && this.type != OFType.FLOW_MOD)
+    		return true;
+    	if(this.flow == null || this.virtTable == null){
         	// TODO: remove the scenario of add.
     		return true;
     	}
     	// b. check the owner.
-    	if(!virtTable.get(switchID).getOwner(this.flow).equals(app)){
+    	if(virtTable.get(switchID) == null || !virtTable.get(switchID).getOwner(this.flow).equals(app)){
     		return true;
     	}
     	return false;
@@ -542,14 +552,14 @@ public class ACLRequest{
     
     // 7. size permission
     public boolean checkRuleCount(int maxRule){
-    	if(maxRule <= virtTable.get(switchID).size()){
+    	if(virtTable.get(switchID) != null && maxRule <= virtTable.get(switchID).size()){
     		return false;
     	}
     	return true;
     }
     
     public boolean checkRulePercentage(float maxRulePer){
-    	if(maxRulePer < virtTable.get(switchID).fullness()){
+    	if(virtTable.get(switchID) != null && maxRulePer < virtTable.get(switchID).fullness()){
     		return false;
     	}
     	return true;

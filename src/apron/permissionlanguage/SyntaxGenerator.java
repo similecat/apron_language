@@ -132,7 +132,11 @@ public class SyntaxGenerator extends ApronBaseVisitor <SyntaxTree> implements Ap
 		SyntaxTree ret = new SyntaxTree(NodeType.flow_predicate);
     	ret.data(5);
     	ret.add(ctx.INTFields().getText());
-		ret.add(visit(ctx.INT()));
+    	
+    	SyntaxTree INT = new SyntaxTree(NodeType.value);
+        ret.data(Integer.valueOf(ctx.INT().getText()));
+		ret.add(INT);
+		
 		return ret;
 	}
 	public SyntaxTree visitMacVal(ApronParser.MacValContext ctx){
@@ -142,12 +146,12 @@ public class SyntaxGenerator extends ApronBaseVisitor <SyntaxTree> implements Ap
 	}
 
     public SyntaxTree visitValInt(ApronParser.ValIntContext ctx){
-    	SyntaxTree ret = new SyntaxTree(NodeType.flow_predicate);
+    	SyntaxTree ret = new SyntaxTree(NodeType.value);
         ret.data(Integer.valueOf(ctx.INT().getText()));
         return ret;
     }
     public SyntaxTree visitValIp(ApronParser.ValIpContext ctx){
-    	SyntaxTree ret = new SyntaxTree(NodeType.flow_predicate);
+    	SyntaxTree ret = new SyntaxTree(NodeType.value);
         ret.data(ctx.IP_FORMAT().getText());
         return ret;
     }
@@ -316,7 +320,7 @@ public class SyntaxGenerator extends ApronBaseVisitor <SyntaxTree> implements Ap
     }
     public SyntaxTree visitActionOp(ApronParser.ActionOpContext ctx){
     	SyntaxTree ret = new SyntaxTree(NodeType.action);
-    	ret.add(ctx.OperateAction().getText());
+    	ret.data(ctx.OperateAction().getText());
         return ret;
     }
     public SyntaxTree visitFieldS1(ApronParser.FieldS1Context ctx){

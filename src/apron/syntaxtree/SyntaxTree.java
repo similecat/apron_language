@@ -86,6 +86,11 @@ public class SyntaxTree{
 	public boolean is_err(){
 		return this.Type.is_err();
 	}
+	public void append(SyntaxTree t){
+		for(int i = 0; i < t.childs(); ++i){
+			this.children.add(t.child(i));
+		}
+	}
 	public void copy(SyntaxTree t){
 		this.Type = t.Type;
 		this.op = t.op;
